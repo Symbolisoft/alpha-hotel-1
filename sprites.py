@@ -2092,17 +2092,17 @@ class AtGm(pygame.sprite.Sprite):
         try:
             if self.alive:
                 if self.game.aoi_sprite.target.rect.y > self.rect.y:
-                    self.facing = 'down'
+                    
                     self.y_change += 4
                 elif self.game.aoi_sprite.target.rect.y < self.rect.y:
-                    self.facing = 'up'
+                    
                     self.y_change -= 4
 
                 if self.game.aoi_sprite.target.rect.x > self.rect.x:
-                    self.facing = 'right'
+                    
                     self.x_change += 4
                 elif self.game.aoi_sprite.target.rect.x < self.rect.x:
-                    self.facing = 'left'
+                    
                     self.x_change -= 4
 
                 if self.game.aoi_sprite.target.rect.x == self.rect.x and self.game.aoi_sprite.target.rect.y == self.rect.y:
@@ -2162,3 +2162,79 @@ class AtGm(pygame.sprite.Sprite):
                 self.kill()
 
 
+class RadarScreen(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = OVERLAY_LAYER
+        self.groups = self.game.overlay_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x
+        self.y = y
+        self.width = TILESIZE*6
+        self.height = TILESIZE*6
+
+        self.x_change = 0
+        self.y_change = 0
+
+        self.facing = random.choice(['left', 'right'])
+        self.animation_loop_1 = 0
+        self.animation_loop_2 = 0
+
+        self.animations = [
+            self.game.radar_screen_spritesheet.get_sprite(0, 0, TILESIZE*6, TILESIZE*6),
+            self.game.radar_screen_spritesheet.get_sprite(0, 150, TILESIZE*6, TILESIZE*6),
+            self.game.radar_screen_spritesheet.get_sprite(150, 0, TILESIZE*6, TILESIZE*6),
+            self.game.radar_screen_spritesheet.get_sprite(150, 150, TILESIZE*6, TILESIZE*6),
+            self.game.radar_screen_spritesheet.get_sprite(300, 0, TILESIZE*6, TILESIZE*6),
+            self.game.radar_screen_spritesheet.get_sprite(300, 150, TILESIZE*6, TILESIZE*6),
+            self.game.radar_screen_spritesheet.get_sprite(450, 0, TILESIZE*6, TILESIZE*6),
+            self.game.radar_screen_spritesheet.get_sprite(450, 150, TILESIZE*6, TILESIZE*6),
+            self.game.radar_screen_spritesheet.get_sprite(600, 0, TILESIZE*6, TILESIZE*6),
+            self.game.radar_screen_spritesheet.get_sprite(600, 150, TILESIZE*6, TILESIZE*6),
+            self.game.radar_screen_spritesheet.get_sprite(750, 0, TILESIZE*6, TILESIZE*6),
+            self.game.radar_screen_spritesheet.get_sprite(750, 150, TILESIZE*6, TILESIZE*6),
+            self.game.radar_screen_spritesheet.get_sprite(900, 0, TILESIZE*6, TILESIZE*6),
+            self.game.radar_screen_spritesheet.get_sprite(900, 150, TILESIZE*6, TILESIZE*6),
+            self.game.radar_screen_spritesheet.get_sprite(1050, 0, TILESIZE*6, TILESIZE*6),
+            self.game.radar_screen_spritesheet.get_sprite(1050, 150, TILESIZE*6, TILESIZE*6)
+        ]
+
+        self.image = self.animations[0]
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.health = 200
+        self.death_timer = pygame.time.get_ticks()
+        
+        self.exp = 50
+        self.alive = True
+
+        
+
+    def update(self):
+        #   call movement and animate functions.
+
+        
+        self.animate()
+
+        #   move and check collisions
+
+        #   weapon firing
+
+    def movement(self):
+        pass
+                 
+    def animate(self):
+        if self.alive:
+            self.image = self.animations[math.floor(self.animation_loop_1)]
+            self.animation_loop_1 += 0.3
+            if self.animation_loop_1 >= 16:
+                self.animation_loop_1 = 0
+                
+            
+
+        
+                

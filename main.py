@@ -45,6 +45,7 @@ class Game:
         self.atgm_spritesheet = SpriteSheet('img/atgm_spritesheet.png')
         self.aam_spritesheet = SpriteSheet('img/aam_spritesheet.png')
         self.targeting_spritesheet = SpriteSheet('img/targeting_spritesheet.png')
+        self.radar_screen_spritesheet = SpriteSheet('img/radar_screen_spritesheet.png')
 
         #   fonts
         self.font = pygame.font.Font('jennifer.ttf', 26)
@@ -75,6 +76,7 @@ class Game:
 
         self.convo = ''
         self.text_timer = pygame.time.get_ticks()
+        self.radar_animation_loop = 0
       
     def create_ground_map_lv1(self):
         for i, row in enumerate(ground_map_lv1):
@@ -150,6 +152,7 @@ class Game:
         self.create_reference_sprite()
         self.player = Player(self, 14, 8)
         self.aoi_sprite = AreaOfInfluence(self, 10, 4)
+        self.radar_screen = RadarScreen(self, 744, 260)
         self.last = pygame.time.get_ticks()
 
         for sprite in self.ref_sprite:
@@ -202,7 +205,8 @@ class Game:
         self.aam_ammo_text = self.font_mid.render(f'AAM Ammo: {self.player.aam_ammo}', True, WHITE)
         self.aam_ammo_text_rect = self.aam_ammo_text.get_rect(x=740, y=145)
 
-        
+        self.direction_text = self.font_mid.render(f'N', True, WHITE)
+        self.direction_text_rect = self.direction_text.get_rect(x=810, y=550)
         
 
         self.healthbar = self.healthbar_images[0]
@@ -305,6 +309,19 @@ class Game:
             self.aam_ammo_text = self.font_mid.render(f'AAM Ammo: {self.player.aam_ammo}', True, WHITE)
             self.aam_ammo_text_rect = self.aam_ammo_text.get_rect(x=740, y=145)
 
+            if self.player.facing == 'up':
+                self.direction_text = self.font_mid.render(f'N', True, WHITE)
+                self.direction_text_rect = self.direction_text.get_rect(x=810, y=550)
+            elif self.player.facing == 'right':
+                self.direction_text = self.font_mid.render(f'E', True, WHITE)
+                self.direction_text_rect = self.direction_text.get_rect(x=810, y=550)
+            elif self.player.facing == 'down':
+                self.direction_text = self.font_mid.render(f'S', True, WHITE)
+                self.direction_text_rect = self.direction_text.get_rect(x=810, y=550)
+            elif self.player.facing == 'left':
+                self.direction_text = self.font_mid.render(f'W', True, WHITE)
+                self.direction_text_rect = self.direction_text.get_rect(x=807, y=550)
+
 
             self.healthbar = self.healthbar_images[0]
             if self.player.pc_health > 90:
@@ -339,12 +356,14 @@ class Game:
         
 
         self.screen.blit(self.overlay_bg, (0, 0))
+        self.overlay_sprites.draw(self.screen)
         self.screen.blit(self.gun_ammo_text, self.gun_ammo_text_rect)
         self.screen.blit(self.flare_ammo_text, self.flare_ammo_text_rect)
         self.screen.blit(self.rocket_ammo_text, self.rocket_ammo_text_rect)
         self.screen.blit(self.atgm_ammo_text, self.atgm_ammo_text_rect)
         self.screen.blit(self.aam_ammo_text, self.aam_ammo_text_rect)
         self.screen.blit(self.convo_text, self.convo_text_rect)
+        self.screen.blit(self.direction_text, self.direction_text_rect)
         
         self.screen.blit(self.healthbar, (100, 580))
         self.screen.blit(self.health_text, self.health_text_rect)

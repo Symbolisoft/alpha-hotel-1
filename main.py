@@ -12,7 +12,8 @@ class Game:
         self.screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 
         pygame.mixer.init()
-
+        self.clock = pygame.time.Clock()
+        self.running = True
 
         #   sounds
         self.main_theme = pygame.mixer.Sound('snd/main-theme.wav')
@@ -23,8 +24,7 @@ class Game:
         self.helicopter_sound = pygame.mixer.Sound('snd/helicopter-sound.wav')
         self.building_explosion_sound = pygame.mixer.Sound('snd/building-explosion.wav')
 
-        self.clock = pygame.time.Clock()
-        self.running = True
+        
 
         #   spritesheets
         self.character_spritesheet = SpriteSheet('img/playerspritesheet.png')
@@ -41,7 +41,12 @@ class Game:
         self.infantry_spritesheet = SpriteSheet('img/infantry_spritesheet.png')
         self.control_tower_spritesheet = SpriteSheet('img/control_tower_spritesheet.png')
         self.helipad_spritesheet = SpriteSheet('img/helipad_spritesheet.png')
+        self.rocket_spritesheet = SpriteSheet('img/unguided_rocket_spritesheet.png')
+        self.atgm_spritesheet = SpriteSheet('img/atgm_spritesheet.png')
+        self.aam_spritesheet = SpriteSheet('img/aam_spritesheet.png')
+        self.targeting_spritesheet = SpriteSheet('img/targeting_spritesheet.png')
 
+        #   fonts
         self.font = pygame.font.Font('jennifer.ttf', 26)
         self.font_mid = pygame.font.Font('jennifer.ttf', 18)
         self.font_small = pygame.font.Font('jennifer.ttf', 14)
@@ -132,6 +137,8 @@ class Game:
         self.aoi = pygame.sprite.LayeredUpdates()
         self.flares = pygame.sprite.LayeredUpdates()
         self.helipads = pygame.sprite.LayeredUpdates()
+        self.enemy_ground = pygame.sprite.LayeredUpdates()
+        self.enemy_air = pygame.sprite.LayeredUpdates()
 
         self.main_theme.play(-1)
         self.main_theme.set_volume(0.1)
@@ -194,6 +201,8 @@ class Game:
 
         self.aam_ammo_text = self.font_mid.render(f'AAM Ammo: {self.player.aam_ammo}', True, WHITE)
         self.aam_ammo_text_rect = self.aam_ammo_text.get_rect(x=740, y=145)
+
+        
         
 
         self.healthbar = self.healthbar_images[0]
@@ -459,16 +468,25 @@ class Game:
         rockets_text_rect = rockets_text.get_rect(x=200, y=111)
         rockets_text_2 = self.font_mid.render('buildings and convoys due to their quantity. - x 50  - Press 1 to arm.', True, BLACK)
         rockets_text_2_rect = rockets_text_2.get_rect(x=200, y=131)
+        rockets_armed = self.font_mid.render('', True, RED)
+        rockets_armed_rect = rockets_armed.get_rect(x=800, y=121)
+        
 
         atgm_text = self.font_mid.render('Anti Tank Guided Missiles (ATGM):  Missiles with infra-red tracking', True, BLACK)
         atgm_text_rect = atgm_text.get_rect(x=200, y=236)
         atgm_text_2 = self.font_mid.render('and targeting, perfect for enemy ground vehicles. - x 4  - Press 2 to arm.', True, BLACK)
         atgm_text_2_rect = atgm_text_2.get_rect(x=200, y=256)
+        atgm_armed = self.font_mid.render('', True, RED)
+        atgm_armed_rect = atgm_armed.get_rect(x=800, y=246)
+        
 
         aam_text = self.font_mid.render('Air to Air Missiles (AAM):  Highly manouverable missiles with infra-red', True, BLACK)
         aam_text_rect = aam_text.get_rect(x=200, y=361)
         aam_text_2 = self.font_mid.render('tracking and targeting, perfect for enemy aircraft. - x 4  - Press 3 to arm.', True, BLACK)
         aam_text_2_rect = aam_text_2.get_rect(x=200, y=381)
+        aam_armed = self.font_mid.render('', True, RED)
+        aam_armed_rect = aam_armed.get_rect(x=800, y=371)
+        
 
 
         exit_txt = self.font.render('Press B to exit.', True, BLACK)
@@ -477,6 +495,27 @@ class Game:
         
 
         while weapon_menu:
+
+            if self.player.rocket_ammo == 30:
+                rockets_armed = self.font_mid.render('ARMED', True, RED)
+                rockets_armed_rect = rockets_armed.get_rect(x=800, y=121)
+            else:
+                rockets_armed = self.font_mid.render('', True, RED)
+                rockets_armed_rect = rockets_armed.get_rect(x=800, y=121)
+            if self.player.atgm_ammo == 4:
+                atgm_armed = self.font_mid.render('ARMED', True, RED)
+                atgm_armed_rect = atgm_armed.get_rect(x=800, y=246)
+            else:
+                atgm_armed = self.font_mid.render('', True, RED)
+                atgm_armed_rect = atgm_armed.get_rect(x=800, y=246)
+            if self.player.aam_ammo == 4:
+                aam_armed = self.font_mid.render('ARMED', True, RED)
+                aam_armed_rect = aam_armed.get_rect(x=800, y=371)
+            else:
+                aam_armed = self.font_mid.render('', True, RED)
+                aam_armed_rect = aam_armed.get_rect(x=800, y=371)
+
+
             for event in pygame.event.get():                
                 if event.type == pygame.QUIT:
                     weapon_menu = False
@@ -487,7 +526,7 @@ class Game:
             if keys[pygame.K_b]:
                 weapon_menu = False
             if keys[pygame.K_1]:
-                self.player.rocket_ammo = 50
+                self.player.rocket_ammo = 30
                 #   self.player.atgm_ammo = 0
                 #   self.player.aam_ammo = 0
             if keys[pygame.K_2]:
@@ -509,10 +548,13 @@ class Game:
             self.screen.blit(exit_txt, exit_txt_rect)
             self.screen.blit(rockets_text, rockets_text_rect)
             self.screen.blit(rockets_text_2, rockets_text_2_rect)
+            self.screen.blit(rockets_armed, rockets_armed_rect)
             self.screen.blit(atgm_text, atgm_text_rect)
             self.screen.blit(atgm_text_2, atgm_text_2_rect)
+            self.screen.blit(atgm_armed, atgm_armed_rect)
             self.screen.blit(aam_text, aam_text_rect)
             self.screen.blit(aam_text_2, aam_text_2_rect)
+            self.screen.blit(aam_armed, aam_armed_rect)
             
             self.clock.tick(FPS)
 

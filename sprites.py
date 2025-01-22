@@ -1837,6 +1837,34 @@ class Dirt(pygame.sprite.Sprite):
         self.rect.y = self.y
 
 
+class Scrub(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+
+        self.game = game
+        self._layer = BUILDING_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        self.images = [
+            self.game.scrub_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE),
+            self.game.scrub_spritesheet.get_sprite(25, 0, TILESIZE, TILESIZE),
+            self.game.scrub_spritesheet.get_sprite(50, 0, TILESIZE, TILESIZE)
+        ]
+
+        
+        self.image = self.images[random.randint(0, 2)]
+        
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+
 class Water(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
 
@@ -2098,7 +2126,76 @@ class TwoByTwoHole(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
-   
+
+class Barrels(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+
+        self.game = game
+        self._layer = BUILDING_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        image_to_load = pygame.image.load('img/barrels.png')
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.blit(image_to_load, (0,0))
+        self.image.set_colorkey(WHITE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+
+class PalmTree(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+
+        self.game = game
+        self._layer = BUILDING_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        image_to_load = pygame.image.load('img/palm_tree.png')
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.blit(image_to_load, (0,0))
+        self.image.set_colorkey(WHITE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+
+class Watchtower(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+
+        self.game = game
+        self._layer = BUILDING_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        image_to_load = pygame.image.load('img/watchtower.png')
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.blit(image_to_load, (0,0))
+        self.image.set_colorkey(WHITE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+
 class Hangar(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game

@@ -46,6 +46,10 @@ class Game:
         self.aam_spritesheet = SpriteSheet('img/aam_spritesheet.png')
         self.targeting_spritesheet = SpriteSheet('img/targeting_spritesheet.png')
         self.radar_screen_spritesheet = SpriteSheet('img/radar_screen_spritesheet.png')
+        self.fencing_spritesheet = SpriteSheet('img/fencing_spritesheet.png')
+        self.spaag_spritesheet = SpriteSheet('img/spaag_spritesheet.png')
+        self.aaa_round_spritesheet = SpriteSheet('img/aaa_round_spritesheet.png')
+        self.water_spritesheet = SpriteSheet('img/waterspritesheet.png')
 
         #   fonts
         self.font = pygame.font.Font('jennifer.ttf', 26)
@@ -86,6 +90,9 @@ class Game:
                 if col == '2':
                     TwoByTwoHole(self, j, i)
                     RadarBuilding(self, j, i)
+                if col == '3':
+                    TwoByTwoHole(self, j, i)
+                    ObjectiveRadarBuilding(self, j, i)
                 if col == 'H':
                     TwoByTwoHole(self, j, i)
                     Hangar(self, j, i)
@@ -109,6 +116,8 @@ class Game:
                 if col == 'P':
                     TwoByTwoHole(self, j, i)
                     HeliPad(self, j, i)
+                if col == 'W':
+                    Water(self, j, i)
 
     def create_vehicle_map_lv1(self):
         for i, row in enumerate(vehicle_map_lv1):
@@ -117,12 +126,38 @@ class Game:
                     SAMTruck(self, j, i)
                 if col == 'I':
                     Infantry(self, j, i)
+                if col == 'A':
+                    SpAaG(self, j, i)
+
+    def create_fencing_map_lv1(self):
+        for i, row in enumerate(fencing_map_lv1):
+            for j, col in enumerate(row):
+                if col == 'X':
+                    FencingX(self, j, i)
+                if col == 'Y':
+                    FencingY(self, j, i)
+                if col == 'l':
+                    FencingBottomleft(self, j, i)
+                if col == 'L':
+                    FencingTopleft(self, j, i)
+                if col == 'r':
+                    FencingBottomRight(self, j, i)
+                if col == 'R':
+                    FencingTopRight(self, j, i)
+                if col == 'G':
+                    FencingGate(self, j, i)
 
     def create_reference_sprite(self):
         for i, row in enumerate(REFERENCE_SPRITE):
             for j, col in enumerate(row):
                 if col == '1':
                     ReferenceSprite(self, j, i)
+
+    def create_blocks_lv1(self):
+        for i, row in enumerate(blocks_lv1):
+            for j, col in enumerate(row):
+                if col == '1':
+                    Block(self, j, i)
 
     def new(self):
         #   start a new game
@@ -149,7 +184,9 @@ class Game:
 
         self.create_ground_map_lv1()
         self.create_vehicle_map_lv1()
+        self.create_fencing_map_lv1()
         self.create_reference_sprite()
+        self.create_blocks_lv1()
         self.player = Player(self, 14, 8)
         self.aoi_sprite = AreaOfInfluence(self, 10, 4)
         self.radar_screen = RadarScreen(self, 744, 260)
@@ -411,33 +448,41 @@ class Game:
         
         self.level += 1
 
-        text = self.font.render('Mission Complete - Congratulations.', True, WHITE)
+        text = self.font.render('Mission Complete - Congratulations Lieutenant.', True, WHITE)
         text_rect = text.get_rect(center=(WIN_WIDTH/2, 350))
 
-        next_button = Button(10, WIN_HEIGHT-60, 120, 50, WHITE, BLACK, 'Next Mission', 32)
+        next_button = Button(10, WIN_HEIGHT-60, 180, 50, WHITE, BLACK, 'Next Mission', 32)
+        self.helicopter_sound.stop()
+        self.main_theme.stop()
+        self.main_theme.play(-1)
+        self.main_theme.set_volume(0.7)
 
         for sprite in self.all_sprites:
             sprite.kill()
+        
 
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    self.main_theme.stop()
                     self.running = False
+                    pygame.quit()
+                    sys.exit()
 
             mouse_pos = pygame.mouse.get_pos()
             mouse_pressed = pygame.mouse.get_pressed()
 
             if next_button.is_pressed(mouse_pos, mouse_pressed):
                 if self.level == 2:
-                    pass
+                    self.main_theme.stop()
                 elif self.level == 3:
-                    pass
+                    self.main_theme.stop()
                 elif self.level == 4:
-                    pass
+                    self.main_theme.stop()
                 elif self.level == 5:
-                    pass
+                    self.main_theme.stop()
                 elif self.level == 6:
-                    pass
+                    self.main_theme.stop()
 
             self.screen.blit(self.game_over_bg, (0, 0))
             self.screen.blit(text, text_rect)
@@ -451,9 +496,11 @@ class Game:
         intro = True
 
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Play', 32)
-        title = self.font.render('ALPHA-HOTEL-1', True, WHITE)
-        title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 350))
+        #   title = self.font.render('ALPHA-HOTEL-1', True, WHITE)
+        #   title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 350))
         self.main_theme.play(-1)
+        self.main_theme.set_volume(0.7)
+        last = pygame.time.get_ticks()
 
         while intro:
             for event in pygame.event.get():
@@ -467,11 +514,107 @@ class Game:
             mouse_pressed = pygame.mouse.get_pressed()
 
             if play_button.is_pressed(mouse_pos, mouse_pressed):
-                self.main_theme.stop()
-                intro = False
+                now = pygame.time.get_ticks()
+                if now - last >= 500:
+                    intro = False
+                    self.scene_one()
+                    
                 
 
             self.screen.blit(self.intro_bg, (0, 0))
+            #   self.screen.blit(title, title_rect)
+            self.screen.blit(play_button.image, play_button.rect)
+            self.clock.tick(FPS)
+            pygame.display.update()
+
+    def scene_one(self):
+        scene_one = True
+
+        play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
+        title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
+        title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
+        brief_line_1 = self.font_mid.render('AH-1:  That\'s your callsign.  Welcome Lieutenant, here we have the briefing for our first mission;', True, BLACK)
+        brief_line_1_rect = brief_line_1.get_rect(x=40, y=150)
+        brief_line_2 = self.font_mid.render('We have intelligence of enemy activity just SOUTH-EAST of our base,', True, BLACK)
+        brief_line_2_rect = brief_line_2.get_rect(x=40, y=175)
+        brief_line_3 = self.font_mid.render('it seems they have taken over a RADAR installation.  We need to strike fast!', True, BLACK)
+        brief_line_3_rect = brief_line_3.get_rect(x=40, y=200)
+        brief_line_4 = self.font_mid.render('We need to neutralise the facility, you shoud only need your cannon for this mission.  Good luck Lieutenant!', True, BLACK)
+        brief_line_4_rect = brief_line_4.get_rect(x=40, y=225)
+        brief_label_1 = self.font_mid.render('SPAAG - Self Propelled Anti-Aircraft Guns.', True, RED)
+        brief_label_1_rect = brief_label_1.get_rect(x=170, y=310)
+        brief_label_2 = self.font_mid.render('Enemy Infantry - Mostly harmless.', True, RED)
+        brief_label_2_rect = brief_label_2.get_rect(x=240, y=430)
+        brief_label_3 = self.font_mid.render('MISSION OBJECTIVE - Destroy the installation.', True, RED)
+        brief_label_3_rect = brief_label_3.get_rect(x=145, y=535)
+        objective_image = pygame.image.load('img/mission_1_brief.png')
+        last = pygame.time.get_ticks()
+        
+        self.main_theme.set_volume(0.7)
+
+        while scene_one:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.main_theme.stop()
+                    scene_one = False
+                    self.running = False
+                    
+
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_pressed = pygame.mouse.get_pressed()
+
+            if play_button.is_pressed(mouse_pos, mouse_pressed):
+                now = pygame.time.get_ticks()
+                if now - last >= 500:
+                    self.main_theme.stop()
+                    scene_one = False
+                
+
+            self.screen.blit(self.menu_bg, (0, 0))
+            self.screen.blit(objective_image, (500, 300))
+            self.screen.blit(title, title_rect)
+            self.screen.blit(brief_line_1, brief_line_1_rect)
+            self.screen.blit(brief_line_2, brief_line_2_rect)
+            self.screen.blit(brief_line_3, brief_line_3_rect)
+            self.screen.blit(brief_line_4, brief_line_4_rect)
+            self.screen.blit(brief_label_1, brief_label_1_rect)
+            self.screen.blit(brief_label_2, brief_label_2_rect)
+            self.screen.blit(brief_label_3, brief_label_3_rect)
+            self.screen.blit(play_button.image, play_button.rect)
+            self.clock.tick(FPS)
+            pygame.display.update()
+
+    def scene_two(self):
+        scene_two = True
+
+        play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
+        title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
+        title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
+        objective_image = pygame.image.load('img/mission_1_brief.png')
+        last = pygame.time.get_ticks()
+        self.main_theme.play(-1)
+        self.main_theme.set_volume(0.7)
+
+        while scene_two:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.main_theme.stop()
+                    scene_two = False
+                    self.running = False
+                    
+
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_pressed = pygame.mouse.get_pressed()
+
+            if play_button.is_pressed(mouse_pos, mouse_pressed):
+                now = pygame.time.get_ticks()
+                if now - last >= 500:
+                    self.main_theme.stop()
+                    scene_two = False
+                
+
+            self.screen.blit(self.menu_bg, (0, 0))
+            self.screen.blit(objective_image, (500, 300))
             self.screen.blit(title, title_rect)
             self.screen.blit(play_button.image, play_button.rect)
             self.clock.tick(FPS)
@@ -565,16 +708,36 @@ class Game:
             self.screen.blit(self.aam_img, (100, 350))
             self.screen.blit(title, title_rect)
             self.screen.blit(exit_txt, exit_txt_rect)
-            self.screen.blit(rockets_text, rockets_text_rect)
-            self.screen.blit(rockets_text_2, rockets_text_2_rect)
-            self.screen.blit(rockets_armed, rockets_armed_rect)
-            self.screen.blit(atgm_text, atgm_text_rect)
-            self.screen.blit(atgm_text_2, atgm_text_2_rect)
-            self.screen.blit(atgm_armed, atgm_armed_rect)
-            self.screen.blit(aam_text, aam_text_rect)
-            self.screen.blit(aam_text_2, aam_text_2_rect)
-            self.screen.blit(aam_armed, aam_armed_rect)
             
+            
+            
+            
+
+            if self.level == 2:
+                self.screen.blit(rockets_text, rockets_text_rect)
+                self.screen.blit(rockets_text_2, rockets_text_2_rect)
+                self.screen.blit(rockets_armed, rockets_armed_rect)
+
+            if self.level == 3:
+                self.screen.blit(rockets_text, rockets_text_rect)
+                self.screen.blit(rockets_text_2, rockets_text_2_rect)
+                self.screen.blit(rockets_armed, rockets_armed_rect)
+                self.screen.blit(atgm_text, atgm_text_rect)
+                self.screen.blit(atgm_text_2, atgm_text_2_rect)
+                self.screen.blit(atgm_armed, atgm_armed_rect)
+
+            if self.level >= 4:
+                self.screen.blit(rockets_text, rockets_text_rect)
+                self.screen.blit(rockets_text_2, rockets_text_2_rect)
+                self.screen.blit(rockets_armed, rockets_armed_rect)
+                self.screen.blit(atgm_text, atgm_text_rect)
+                self.screen.blit(atgm_text_2, atgm_text_2_rect)
+                self.screen.blit(atgm_armed, atgm_armed_rect)
+                self.screen.blit(aam_text, aam_text_rect)
+                self.screen.blit(aam_text_2, aam_text_2_rect)
+                self.screen.blit(aam_armed, aam_armed_rect)
+
+
             self.clock.tick(FPS)
 
             pygame.display.update()

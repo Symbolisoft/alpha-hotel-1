@@ -51,6 +51,7 @@ class Game:
         self.aaa_round_spritesheet = SpriteSheet('img/aaa_round_spritesheet.png')
         self.water_spritesheet = SpriteSheet('img/waterspritesheet.png')
         self.scrub_spritesheet = SpriteSheet('img/scrub_spritesheet.png')
+        self.tank_spritesheet = SpriteSheet('img/tank_spritesheet.png')
 
         #   fonts
         self.font = pygame.font.Font('jennifer.ttf', 26)
@@ -234,6 +235,8 @@ class Game:
                     Infantry(self, j, i)
                 if col == 'A':
                     SpAaG(self, j, i)
+                if col == 'T':
+                    TankOneSpawnPoint(self, j, i)
 
     def create_fencing_map_lv2(self):
         for i, row in enumerate(fencing_map_lv2):
@@ -482,6 +485,124 @@ class Game:
         elif self.player.pc_health >= 10:
             self.healthbar = self.healthbar_images[9]
 
+
+        self.tanks_killed = 0
+
+    def new_lv3(self):
+        #   start level 2
+        self.playing = True
+        
+        
+        self.all_sprites = pygame.sprite.LayeredUpdates()
+        self.p_sprite_group = pygame.sprite.LayeredUpdates()
+        self.blocks = pygame.sprite.LayeredUpdates()
+        self.enemies = pygame.sprite.LayeredUpdates()
+        self.attacks = pygame.sprite.LayeredUpdates()
+        self.ref_sprite = pygame.sprite.LayeredUpdates()
+        self.overlay_sprites = pygame.sprite.LayeredUpdates()
+        self.aoi = pygame.sprite.LayeredUpdates()
+        self.flares = pygame.sprite.LayeredUpdates()
+        self.helipads = pygame.sprite.LayeredUpdates()
+        self.enemy_ground = pygame.sprite.LayeredUpdates()
+        self.enemy_air = pygame.sprite.LayeredUpdates()
+
+        
+        self.main_theme.play(-1)
+        self.main_theme.set_volume(0.1)
+        self.helicopter_sound.set_volume(0.7)
+        self.helicopter_sound.play(-1)
+
+        self.create_ground_map_lv2()
+        self.create_vehicle_map_lv2()
+        self.create_fencing_map_lv2()
+        self.create_reference_sprite()
+        self.create_blocks_lv2()
+        self.player = Player(self, 14, 8)
+        self.aoi_sprite = AreaOfInfluence(self, 10, 4)
+        self.radar_screen = RadarScreen(self, 744, 260)
+        self.last = pygame.time.get_ticks()
+
+        for sprite in self.ref_sprite:
+            self.ref_x_pix = sprite.rect.x
+            self.ref_y_pix = sprite.rect.y
+        
+        if self.ref_x_pix != 0:
+            self.rel_x = self.ref_x_pix/TILESIZE
+        else:
+            self.rel_x = self.ref_x_pix
+
+        if self.ref_y_pix != 0:
+            self.rel_y = self.ref_y_pix/TILESIZE
+        else:
+            self.rel_y = self.ref_y_pix
+
+        self.healthbar_images = [
+            self.healthbar_spritesheet.get_sprite(0, 0, 600, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 540, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 480, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 420, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 360, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 300, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 240, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 180, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 120, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 60, 10)
+        ]
+
+        self.health_text = self.font.render('Health:', True, WHITE)
+        self.health_text_rect = self.health_text.get_rect(x= 20, y= 570)
+
+        self.convo_text = self.font_mid.render(self.convo, True, BLACK)
+        self.convo_text_rect = self.convo_text.get_rect(x= 100, y= 450)
+
+        
+
+        self.gun_ammo_text = self.font_mid.render(f'Gun Ammo: {self.player.gun_ammo}', True, WHITE)
+        self.gun_ammo_text_rect = self.gun_ammo_text.get_rect(x=740, y=45)
+
+        self.flare_ammo_text = self.font_mid.render(f'Flare Ammo: {self.player.flare_ammo}', True, WHITE)
+        self.flare_ammo_text_rect = self.flare_ammo_text.get_rect(x=740, y=70)
+
+        self.rocket_ammo_text = self.font_mid.render(f'Rocket Ammo: {self.player.rocket_ammo}', True, WHITE)
+        self.rocket_ammo_text_rect = self.rocket_ammo_text.get_rect(x=740, y=95)
+
+        self.atgm_ammo_text = self.font_mid.render(f'ATGM Ammo: {self.player.atgm_ammo}', True, WHITE)
+        self.atgm_ammo_text_rect = self.atgm_ammo_text.get_rect(x=740, y=120)
+
+        self.aam_ammo_text = self.font_mid.render(f'AAM Ammo: {self.player.aam_ammo}', True, WHITE)
+        self.aam_ammo_text_rect = self.aam_ammo_text.get_rect(x=740, y=145)
+
+        self.direction_text = self.font_mid.render(f'N', True, WHITE)
+        self.direction_text_rect = self.direction_text.get_rect(x=810, y=550)
+
+        self.controls_button = Button(0, 2, 120, 30, WHITE, BLACK, 'Controls', 26)
+        
+
+        self.healthbar = self.healthbar_images[0]
+        if self.player.pc_health > 90:
+            self.healthbar = self.healthbar_images[0]
+        elif self.player.pc_health == 90:
+            self.healthbar = self.healthbar_images[1]
+        elif self.player.pc_health >= 80:
+            self.healthbar = self.healthbar_images[2]
+        elif self.player.pc_health >= 70:
+            self.healthbar = self.healthbar_images[3]
+        elif self.player.pc_health >= 60:
+            self.healthbar = self.healthbar_images[4]
+        elif self.player.pc_health >= 50:
+            self.healthbar = self.healthbar_images[5]
+        elif self.player.pc_health >= 40:
+            self.healthbar = self.healthbar_images[6]
+        elif self.player.pc_health >= 30:
+            self.healthbar = self.healthbar_images[7]
+        elif self.player.pc_health >= 20:
+            self.healthbar = self.healthbar_images[8]
+        elif self.player.pc_health >= 10:
+            self.healthbar = self.healthbar_images[9]
+
+
+        self.tanks_killed = 0
+
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -529,7 +650,9 @@ class Game:
 
 
         
-        
+        if self.level == 2:
+            if self.tanks_killed == 6:
+                self.mission_complete()
 
         #   overlay items that needs to update variables
         now = pygame.time.get_ticks()
@@ -678,6 +801,8 @@ class Game:
 
         for sprite in self.all_sprites:
             sprite.kill()
+        for sprite in self.overlay_sprites:
+            sprite.kill()
         
 
         while mission_completed:
@@ -699,6 +824,8 @@ class Game:
                     self.scene_two()
                 elif self.level == 3:
                     self.main_theme.stop()
+                    mission_completed = False
+                    self.scene_three()
                 elif self.level == 4:
                     self.main_theme.stop()
                 elif self.level == 5:
@@ -812,7 +939,17 @@ class Game:
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
         title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
         title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
-        objective_image = pygame.image.load('img/mission_1_brief.png')
+        objective_image = pygame.image.load('img/mission_2_brief.png')
+
+        brief_line_1 = self.font_mid.render('Welcome back Lieutenant, here we have the briefing for our next mission;', True, BLACK)
+        brief_line_1_rect = brief_line_1.get_rect(x=40, y=150)
+        brief_line_2 = self.font_mid.render('The enemy has had word of our strike on the RADAR installation they occupied,  They have sent a', True, BLACK)
+        brief_line_2_rect = brief_line_2.get_rect(x=40, y=175)
+        brief_line_3 = self.font_mid.render('group of tanks to wait nearby for a retaliatory strike.  We need you to neutralise the tanks.', True, BLACK)
+        brief_line_3_rect = brief_line_3.get_rect(x=40, y=200)
+        brief_line_4 = self.font_mid.render('Unguided rockets have been unlocked in the helipad menu.  Good luck Lieutenant!', True, BLACK)
+        brief_line_4_rect = brief_line_4.get_rect(x=40, y=225)
+
         last = pygame.time.get_ticks()
         self.main_theme.play(-1)
         self.main_theme.set_volume(0.7)
@@ -839,6 +976,61 @@ class Game:
             self.screen.blit(self.menu_bg, (0, 0))
             self.screen.blit(objective_image, (500, 300))
             self.screen.blit(title, title_rect)
+            self.screen.blit(brief_line_1, brief_line_1_rect)
+            self.screen.blit(brief_line_2, brief_line_2_rect)
+            self.screen.blit(brief_line_3, brief_line_3_rect)
+            self.screen.blit(brief_line_4, brief_line_4_rect)
+            self.screen.blit(play_button.image, play_button.rect)
+            self.clock.tick(FPS)
+            pygame.display.update()
+
+    def scene_three(self):
+        scene_three = True
+
+        play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
+        title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
+        title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
+        objective_image = pygame.image.load('img/mission_2_brief.png')
+
+        brief_line_1 = self.font_mid.render('Welcome back Lieutenant, here we have the briefing for our next mission;', True, BLACK)
+        brief_line_1_rect = brief_line_1.get_rect(x=40, y=150)
+        brief_line_2 = self.font_mid.render('Excellent work neutralising the tanks, we have intelligence of an enemy facility where they are', True, BLACK)
+        brief_line_2_rect = brief_line_2.get_rect(x=40, y=175)
+        brief_line_3 = self.font_mid.render('bulding tanks, we want you to strike this facility.  There are enemy SAM trucks protecting the.', True, BLACK)
+        brief_line_3_rect = brief_line_3.get_rect(x=40, y=200)
+        brief_line_4 = self.font_mid.render('facility so ATGMs have been unlocked in the helipad menu.  Good luck Lieutenant!', True, BLACK)
+        brief_line_4_rect = brief_line_4.get_rect(x=40, y=225)
+
+        last = pygame.time.get_ticks()
+        self.main_theme.play(-1)
+        self.main_theme.set_volume(0.7)
+
+        while scene_three:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.main_theme.stop()
+                    scene_three = False
+                    self.running = False
+                    
+
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_pressed = pygame.mouse.get_pressed()
+
+            if play_button.is_pressed(mouse_pos, mouse_pressed):
+                now = pygame.time.get_ticks()
+                if now - last >= 500:
+                    self.main_theme.stop()
+                    self.new_lv3()
+                    scene_three = False
+                
+
+            self.screen.blit(self.menu_bg, (0, 0))
+            self.screen.blit(objective_image, (500, 300))
+            self.screen.blit(title, title_rect)
+            self.screen.blit(brief_line_1, brief_line_1_rect)
+            self.screen.blit(brief_line_2, brief_line_2_rect)
+            self.screen.blit(brief_line_3, brief_line_3_rect)
+            self.screen.blit(brief_line_4, brief_line_4_rect)
             self.screen.blit(play_button.image, play_button.rect)
             self.clock.tick(FPS)
             pygame.display.update()
@@ -851,7 +1043,7 @@ class Game:
 
         rockets_text = self.font_mid.render('Unguided Rocket Pods:  Unguided rockets are perfect for destroying', True, BLACK)
         rockets_text_rect = rockets_text.get_rect(x=200, y=111)
-        rockets_text_2 = self.font_mid.render('buildings and convoys due to their quantity. - x 50  - Press 1 to arm.', True, BLACK)
+        rockets_text_2 = self.font_mid.render('buildings and convoys due to their quantity. - x 30  - Press 1 to arm.', True, BLACK)
         rockets_text_2_rect = rockets_text_2.get_rect(x=200, y=131)
         rockets_armed = self.font_mid.render('', True, RED)
         rockets_armed_rect = rockets_armed.get_rect(x=800, y=121)
@@ -911,17 +1103,20 @@ class Game:
             if keys[pygame.K_b]:
                 weapon_menu = False
             if keys[pygame.K_1]:
-                self.player.rocket_ammo = 30
+                if self.level >=2:
+                    self.player.rocket_ammo = 30
                 #   self.player.atgm_ammo = 0
                 #   self.player.aam_ammo = 0
             if keys[pygame.K_2]:
+                if self.level >= 3:
                 #   self.player.rocket_ammo = 0
-                self.player.atgm_ammo = 4
-                self.player.aam_ammo = 0
+                    self.player.atgm_ammo = 4
+                    self.player.aam_ammo = 0
             if keys[pygame.K_3]:
+                if self.level >= 4:
                 #   self.player.rocket_ammo = 0
-                self.player.atgm_ammo = 0
-                self.player.aam_ammo = 4
+                    self.player.atgm_ammo = 0
+                    self.player.aam_ammo = 4
 
             
 

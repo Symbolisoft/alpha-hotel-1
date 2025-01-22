@@ -353,13 +353,13 @@ class Player(pygame.sprite.Sprite):
 
     def fire_rockets(self):
         if self.facing == 'up':
-            UnguidedRocket(self.game, self.rect.x+12, self.rect.y)
+            UnguidedRocket(self.game, self.rect.x+12, self.rect.y+12)
         elif self.facing == 'down':
             UnguidedRocket(self.game, self.rect.x+12, self.rect.y+12)
         elif self.facing == 'left':
-            UnguidedRocket(self.game, self.rect.x+12, self.rect.y)
+            UnguidedRocket(self.game, self.rect.x+12, self.rect.y+12)
         elif self.facing == 'right':
-            UnguidedRocket(self.game, self.rect.x+12, self.rect.y)
+            UnguidedRocket(self.game, self.rect.x+12, self.rect.y+12)
 
     def fire_missile(self):
         try:
@@ -981,9 +981,9 @@ class Targeting(pygame.sprite.Sprite):
         pass
 
 
-#   NPC RELATED SPRITES
+#   ENEMY RELATED SPRITES
 
-class SpawnPoint(pygame.sprite.Sprite):
+class TankOneSpawnPoint(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
 
         self.game = game
@@ -1009,11 +1009,16 @@ class SpawnPoint(pygame.sprite.Sprite):
         self.lv10 = False
 
         self.spawn_timer = pygame.time.get_ticks()
+        self.spawned = 0
 
     def update(self):
-        hits = pygame.sprite.spritecollide(self, self.game.aoi, False)
-        if hits:
-            self.spawn()
+        if self.spawned < 6:
+            now = pygame.time.get_ticks()
+            if now - self.spawn_timer >= 3000:     #   10sec
+                TankOne(self.game, self.rect.x/TILESIZE, self.rect.y/TILESIZE)
+                self.spawned += 1
+                self.spawn_timer = now
+            
 
     def spawn(self):
         now = pygame.time.get_ticks()
@@ -1807,6 +1812,153 @@ class Infantry(pygame.sprite.Sprite):
             SAMMissile(self.game, self.rect.x, self.rect.y)
 
 
+class TankOne(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = NPC_LAYER
+        self.groups = self.game.all_sprites, self.game.enemies, self.game.enemy_ground
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.origin_x = self.x
+        self.origin_y = self.y
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        self.x_change = 0
+        self.y_change = 0
+
+        self.facing = 'up'
+        self.animation_loop_1 = 0
+        self.animation_loop_2 = 0
+
+        self.once = True
+
+        self.down_animations = [
+            self.game.tank_spritesheet.get_sprite(25, 0, TILESIZE, TILESIZE)
+        ]
+
+        self.up_animations = [
+            self.game.tank_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE)
+        ]
+
+        self.left_animations = [
+            self.game.tank_spritesheet.get_sprite(50, 0, TILESIZE, TILESIZE)
+        ]
+
+        self.right_animations = [
+            self.game.tank_spritesheet.get_sprite(75, 0, TILESIZE, TILESIZE)
+        ]
+
+        self.dead_animations = [
+            self.game.vehicle_explosion_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(25, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(50, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(75, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(100, 0, TILESIZE, TILESIZE)
+        ]
+      
+        self.image = self.game.tank_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.health = 2000
+        self.death_timer = pygame.time.get_ticks()
+        
+        self.exp = 20
+        self.living = True
+        self.steps1 = 0
+        self.range1 = random.randint(200, 250)
+        self.steps2 = 0
+        self.range2 = random.randint(800, 950)
+        self.steps3 = 0
+        self.range3 = random.randint(200, 350)
+        self.speed = 1
+
+        
+        self.missile_timer = pygame.time.get_ticks()
+
+    def update(self):
+        #   call movement and animate functions.
+
+        self.movement()
+        self.animate()
+
+        #   move and check collisions
+
+        self.rect.x += self.x_change
+        
+       
+        
+        self.rect.y += self.y_change
+        
+        
+        self.x_change = 0
+        self.y_change = 0
+
+        #   check health
+
+        if self.health <= 0:
+            self.living = False
+        
+        #   weapon firing
+
+    def movement(self):
+        
+        if self.steps1 < self.range1:
+            if self.living:
+                self.y_change -= self.speed
+                self.steps1 += self.speed
+        else:
+            self.facing = 'left'
+            if self.steps2 < self.range2:
+                if self.living:
+                    self.x_change -= self.speed
+                    self.steps2 += self.speed
+            else:
+                self.facing = 'up'
+                if self.steps3 < self.range3:
+                    if self.living:
+                        self.y_change -= self.speed
+                        self.steps3 += self.speed
+                    
+    def animate(self):
+        if self.living:
+
+            if self.facing == 'up':
+                self.image = self.up_animations[0]
+                
+                
+            if self.facing == 'down':
+                self.image = self.down_animations[0]
+                
+                
+            if self.facing == 'left':
+                self.image = self.left_animations[0]
+                
+                
+            if self.facing == 'right':
+                self.image = self.right_animations[0]
+                
+
+        else:
+            now = pygame.time.get_ticks()
+            if self.once:
+                self.game.building_explosion_sound.set_volume(0.5)
+                self.game.building_explosion_sound.play(0)
+                self.game.enemy_ground.remove(self)
+                self.game.tanks_killed += 1
+                self.game.enemies.remove(self)
+                self.once = False
+            self.image = self.dead_animations[math.floor(self.animation_loop_1)]
+            self.animation_loop_1 += 0.1
+            if self.animation_loop_1 >= 5:
+                self.animation_loop_1 = 3
+
+
 #   TERRAIN AND BUILDING SPRITES
 
 class Dirt(pygame.sprite.Sprite):
@@ -1841,7 +1993,7 @@ class Scrub(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
 
         self.game = game
-        self._layer = BUILDING_LAYER
+        self._layer = GROUND_LAYER
         self.groups = self.game.all_sprites
         pygame.sprite.Sprite.__init__(self, self.groups)
 

@@ -2430,7 +2430,86 @@ class Hangar(pygame.sprite.Sprite):
             if self.animation_loop_1 >= 5:
                 self.animation_loop_1 = 3
 
-   
+
+class ObjectiveFactory(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = BUILDING_LAYER
+        self.groups = self.game.all_sprites, self.game.enemies
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.width = TILESIZE*2
+        self.height = TILESIZE*2
+
+        
+
+        
+        self.animation_loop_1 = 0
+        self.animation_loop_2 = 0
+
+        self.animations = [
+            self.game.factory.get_sprite(0, 0, TILESIZE*2, TILESIZE*2)            
+        ]
+
+
+        self.dead_animations = [
+            self.game.vehicle_explosion_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(25, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(50, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(75, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(100, 0, TILESIZE, TILESIZE)
+        ]
+      
+        self.image = self.game.hangar_spritesheet.get_sprite(0, 0, TILESIZE*2, TILESIZE*2)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.health = 10000
+        self.death_timer = pygame.time.get_ticks()
+        
+        self.exp = 50
+        self.alive = True
+        self.once = True
+
+    def update(self):
+        #   call movement and animate functions.
+        self.animate()
+        
+
+        #   move and check collisions
+
+        
+        
+        
+
+        if self.health <= 0:
+            self.alive = False
+        
+        #   weapon firing
+
+    def movement(self):
+        pass
+                 
+    def animate(self):
+        if self.alive:
+            self.image = self.animations[0]
+            
+                
+            
+
+        else:
+            now = pygame.time.get_ticks()
+            if self.once:
+                self.game.building_explosion_sound.set_volume(0.5)
+                self.game.building_explosion_sound.play(0)
+                self.game.mission_complete()
+                self.game.enemies.remove(self)
+                
+
 class RoadOneY(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
 

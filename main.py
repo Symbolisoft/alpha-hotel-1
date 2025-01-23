@@ -52,6 +52,7 @@ class Game:
         self.water_spritesheet = SpriteSheet('img/waterspritesheet.png')
         self.scrub_spritesheet = SpriteSheet('img/scrub_spritesheet.png')
         self.tank_spritesheet = SpriteSheet('img/tank_spritesheet.png')
+        self.factory = SpriteSheet('img/factory.png')
 
         #   fonts
         self.font = pygame.font.Font('jennifer.ttf', 26)
@@ -258,6 +259,96 @@ class Game:
 
     def create_blocks_lv2(self):
         for i, row in enumerate(blocks_lv2):
+            for j, col in enumerate(row):
+                if col == '1':
+                    Block(self, j, i)
+
+    def create_ground_map_lv3(self):
+        for i, row in enumerate(ground_map_lv3):
+            for j, col in enumerate(row):
+                if col == 'D':
+                    Dirt(self, j, i)
+                if col == '2':
+                    TwoByTwoHole(self, j, i)
+                    RadarBuilding(self, j, i)
+                if col == '3':
+                    TwoByTwoHole(self, j, i)
+                    ObjectiveRadarBuilding(self, j, i)
+                if col == 'H':
+                    TwoByTwoHole(self, j, i)
+                    Hangar(self, j, i)
+                if col == 'X':
+                    RoadOneX(self, j, i)
+                if col == 'Y':
+                    RoadOneY(self, j, i)
+                if col == 'R':
+                    RoadOneUpRight(self, j, i)
+                if col == 'r':
+                    RoadOneDownRight(self, j, i)
+                if col == 'L':
+                    RoadOneUpLeft(self, j, i)
+                if col == 'l':
+                    RoadOneDownLeft(self, j, i)
+                if col == '1':
+                    Runway(self, j, i)
+                if col == 'C':
+                    TwoByTwoHole(self, j, i)
+                    ControlTower(self, j, i)
+                if col == 'P':
+                    TwoByTwoHole(self, j, i)
+                    HeliPad(self, j, i)
+                if col == 'W':
+                    Water(self, j, i)
+                if col == 'S':
+                    Dirt(self, j, i)
+                    Scrub(self, j, i)
+                if col == 'B':
+                    Dirt(self, j, i)
+                    Barrels(self, j, i)
+                if col == 'T':
+                    Dirt(self, j, i)
+                    PalmTree(self, j, i)
+                if col == 'w':
+                    Dirt(self, j, i)
+                    Watchtower(self, j, i)
+                if col == 'h':
+                    TwoByTwoHole(self, j, i)
+                if col == 'F':
+                    TwoByTwoHole(self, j, i)
+                    ObjectiveFactory(self, j, i)
+
+    def create_vehicle_map_lv3(self):
+        for i, row in enumerate(vehicle_map_lv3):
+            for j, col in enumerate(row):
+                if col == 'S':
+                    SAMTruck(self, j, i)
+                if col == 'I':
+                    Infantry(self, j, i)
+                if col == 'A':
+                    SpAaG(self, j, i)
+                if col == 'T':
+                    TankOneSpawnPoint(self, j, i)
+
+    def create_fencing_map_lv3(self):
+        for i, row in enumerate(fencing_map_lv3):
+            for j, col in enumerate(row):
+                if col == 'X':
+                    FencingX(self, j, i)
+                if col == 'Y':
+                    FencingY(self, j, i)
+                if col == 'l':
+                    FencingBottomleft(self, j, i)
+                if col == 'L':
+                    FencingTopleft(self, j, i)
+                if col == 'r':
+                    FencingBottomRight(self, j, i)
+                if col == 'R':
+                    FencingTopRight(self, j, i)
+                if col == 'G':
+                    FencingGate(self, j, i)
+
+    def create_blocks_lv3(self):
+        for i, row in enumerate(blocks_lv3):
             for j, col in enumerate(row):
                 if col == '1':
                     Block(self, j, i)
@@ -512,11 +603,11 @@ class Game:
         self.helicopter_sound.set_volume(0.7)
         self.helicopter_sound.play(-1)
 
-        self.create_ground_map_lv2()
-        self.create_vehicle_map_lv2()
-        self.create_fencing_map_lv2()
+        self.create_ground_map_lv3()
+        self.create_vehicle_map_lv3()
+        self.create_fencing_map_lv3()
         self.create_reference_sprite()
-        self.create_blocks_lv2()
+        self.create_blocks_lv3()
         self.player = Player(self, 14, 8)
         self.aoi_sprite = AreaOfInfluence(self, 10, 4)
         self.radar_screen = RadarScreen(self, 744, 260)
@@ -774,8 +865,15 @@ class Game:
             mouse_pressed = pygame.mouse.get_pressed()
 
             if restart_button.is_pressed(mouse_pos, mouse_pressed):
-                self.new()
-                self.main()
+                if self.level == 1:
+                    self.new_lv1()
+                    self.main()
+                elif self.level == 2:
+                    self.new_lv2()
+                    self.main()
+                elif self.level == 3:
+                    self.new_lv3()
+                    self.main()
 
             self.screen.blit(self.game_over_bg, (0, 0))
             self.screen.blit(text, text_rect)
@@ -907,6 +1005,8 @@ class Game:
                     self.main_theme.stop()
                     scene_one = False
                     self.running = False
+                    pygame.quit()
+                    sys.exit()
                     
 
             mouse_pos = pygame.mouse.get_pos()
@@ -960,6 +1060,8 @@ class Game:
                     self.main_theme.stop()
                     scene_two = False
                     self.running = False
+                    pygame.quit()
+                    sys.exit()
                     
 
             mouse_pos = pygame.mouse.get_pos()
@@ -990,7 +1092,7 @@ class Game:
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
         title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
         title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
-        objective_image = pygame.image.load('img/mission_2_brief.png')
+        objective_image = pygame.image.load('img/mission_3_brief.png')
 
         brief_line_1 = self.font_mid.render('Welcome back Lieutenant, here we have the briefing for our next mission;', True, BLACK)
         brief_line_1_rect = brief_line_1.get_rect(x=40, y=150)
@@ -1011,6 +1113,8 @@ class Game:
                     self.main_theme.stop()
                     scene_three = False
                     self.running = False
+                    pygame.quit()
+                    sys.exit()
                     
 
             mouse_pos = pygame.mouse.get_pos()

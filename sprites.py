@@ -213,6 +213,14 @@ class Player(pygame.sprite.Sprite):
                         self.game.missile_launch_sound.play(0)
                         self.fire_missile()
                         self.missile_timer = now
+                if self.aam_ammo > 0:
+                    if now - self.missile_timer >= 1000:
+                        self.aam_ammo -= 1
+                        
+                        self.game.missile_launch_sound.set_volume(0.5)
+                        self.game.missile_launch_sound.play(0)
+                        self.fire_missile()
+                        self.missile_timer = now
 
     def movement(self):
         keys = pygame.key.get_pressed()
@@ -372,6 +380,16 @@ class Player(pygame.sprite.Sprite):
                     AtGm(self.game, self.rect.x+12, self.rect.y)
                 elif self.facing == 'right':
                     AtGm(self.game, self.rect.x+12, self.rect.y)
+
+            if self.aam_ammo > 0:
+                if self.facing == 'up':
+                    AaM(self.game, self.rect.x+12, self.rect.y)
+                elif self.facing == 'down':
+                    AaM(self.game, self.rect.x+12, self.rect.y+12)
+                elif self.facing == 'left':
+                    AaM(self.game, self.rect.x+12, self.rect.y)
+                elif self.facing == 'right':
+                    AaM(self.game, self.rect.x+12, self.rect.y)
         except:
             pass
             
@@ -404,7 +422,6 @@ class AreaOfInfluence(pygame.sprite.Sprite):
     def update(self):
         self.collide_targets()
 
-
     def collide_targets(self):
         if self.game.player.atgm_ammo > 0:
             try:
@@ -416,6 +433,19 @@ class AreaOfInfluence(pygame.sprite.Sprite):
             if hits:
                 
                 self.target = Targeting(self.game, hits[0].rect.x, hits[0].rect.y)
+            else:
+                self.target = 0
+
+        if self.game.player.aam_ammo > 0:
+            try:
+                self.target.kill()
+            except AttributeError:
+                pass
+            
+            hits = pygame.sprite.spritecollide(self, self.game.enemy_air, False)
+            if hits:
+                
+                self.target = Targeting(self.game, hits[0].rect.x+12, hits[0].rect.y+12)
             else:
                 self.target = 0
             
@@ -706,6 +736,161 @@ class AtGm(pygame.sprite.Sprite):
             hits = pygame.sprite.spritecollide(self, self.game.enemy_ground, False)
             if hits:
                 hits[0].health -= 30
+                self.alive = False
+                self.missile_timer = now
+   
+    def animate(self):
+        if self.alive:
+
+            if self.facing == 'up':
+                self.image = self.up_animations[0]
+                
+                
+            if self.facing == 'down':
+                self.image = self.down_animations[0]
+                
+                
+            if self.facing == 'left':
+                self.image = self.left_animations[0]
+                
+                
+            if self.facing == 'right':
+                self.image = self.right_animations[0]
+                
+
+        else:
+            now = pygame.time.get_ticks()
+            self.game.missile_explosion_sound.set_volume(0.4)
+            if now - self.death_timer >= 1200:
+                self.game.missile_explosion_sound.play(0)
+                self.death_timer = now
+            self.image = self.dead_animations[math.floor(self.animation_loop_1)]
+            self.animation_loop_1 += 0.1
+            if self.animation_loop_1 >= 3:
+                
+                self.kill()
+
+
+class AaM(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = PLAYER_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x
+        self.y = y
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        self.x_change = 0
+        self.y_change = 0
+
+        self.facing = self.game.player.facing
+        
+        self.animation_loop_1 = 0
+        self.animation_loop_2 = 0
+
+        self.down_animations = [
+            self.game.aam_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE)
+        ]
+
+        self.up_animations = [
+            self.game.aam_spritesheet.get_sprite(25, 0, TILESIZE, TILESIZE)
+        ]
+
+        self.left_animations = [
+            self.game.aam_spritesheet.get_sprite(50, 0, TILESIZE, TILESIZE)
+        ]
+
+        self.right_animations = [
+            self.game.aam_spritesheet.get_sprite(75, 0, TILESIZE, TILESIZE)
+        ]
+
+        self.dead_animations = [
+            self.game.aam_spritesheet.get_sprite(0, 25, TILESIZE, TILESIZE),
+            self.game.aam_spritesheet.get_sprite(25, 25, TILESIZE, TILESIZE),
+            self.game.aam_spritesheet.get_sprite(50, 25, TILESIZE, TILESIZE)
+        ]
+
+        self.image = self.game.aam_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.death_timer = pygame.time.get_ticks()
+
+        self.alive = True
+
+        self.range_max = 200
+        self.range_min = -200
+        self.missile_timer = pygame.time.get_ticks()
+
+    def update(self):
+        #   call movement and animate functions.
+
+        self.movement()
+        self.animate()
+
+        #   move and check collisions
+
+        self.rect.x += self.x_change
+        self.collide_enemy('x')
+       
+        
+        self.rect.y += self.y_change
+        self.collide_enemy('y')
+        
+        self.x_change = 0
+        self.y_change = 0
+
+        #   check health
+
+        
+        
+        #   weapon firing
+
+    def movement(self):
+        now = pygame.time.get_ticks()
+        try:
+            
+            if self.game.aoi_sprite.target.rect.y > self.rect.y:
+                
+                self.y_change += 6
+            elif self.game.aoi_sprite.target.rect.y < self.rect.y:
+                
+                self.y_change -= 6
+
+            if self.game.aoi_sprite.target.rect.x > self.rect.x:
+                
+                self.x_change += 6
+            elif self.game.aoi_sprite.target.rect.x < self.rect.x:
+                
+                self.x_change -= 6
+
+            if self.game.aoi_sprite.target.rect.x == self.rect.x and self.game.aoi_sprite.target.rect.y == self.rect.y:
+                self.alive = False
+            elif now - self.missile_timer >= 6000:
+                self.alive = False
+
+        except:
+            self.kill()
+
+    def collide_enemy(self, direction):
+        now = pygame.time.get_ticks()
+        if direction == 'x':
+            hits = pygame.sprite.spritecollide(self, self.game.enemy_air, False)
+            if hits:
+                hits[0].living = False    
+                self.alive = False
+                self.missile_timer = now
+                    
+
+        if direction == 'y':
+            hits = pygame.sprite.spritecollide(self, self.game.enemy_air, False)
+            if hits:
+                hits[0].living = False
                 self.alive = False
                 self.missile_timer = now
    
@@ -1957,6 +2142,275 @@ class TankOne(pygame.sprite.Sprite):
             self.animation_loop_1 += 0.1
             if self.animation_loop_1 >= 5:
                 self.animation_loop_1 = 3
+
+
+class TransportPlane(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = PLAYER_LAYER
+        self.groups = self.game.all_sprites, self.game.enemy_air
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.origin_x = self.x
+        self.origin_y = self.y
+        self.width = TILESIZE*2
+        self.height = TILESIZE*2
+
+        self.x_change = 0
+        self.y_change = 0
+
+        self.facing = 'up'
+        self.animation_loop_1 = 0
+        self.animation_loop_2 = 0
+
+        self.once = True
+
+        self.down_animations = [
+            self.game.transport_spritesheet.get_sprite(50, 0, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.up_animations = [
+            self.game.transport_spritesheet.get_sprite(0, 0, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.left_animations = [
+            self.game.transport_spritesheet.get_sprite(100, 0, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.right_animations = [
+            self.game.transport_spritesheet.get_sprite(150, 0, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.dead_animations = [
+            self.game.transport_spritesheet.get_sprite(200, 0, TILESIZE*2, TILESIZE*2),
+            self.game.transport_spritesheet.get_sprite(250, 0, TILESIZE*2, TILESIZE*2),
+            self.game.transport_spritesheet.get_sprite(300, 0, TILESIZE*2, TILESIZE*2),
+            self.game.transport_spritesheet.get_sprite(350, 0, TILESIZE*2, TILESIZE*2)
+        ]
+      
+        self.image = self.game.transport_spritesheet.get_sprite(0, 0, TILESIZE*2, TILESIZE*2)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.health = 100
+        self.death_timer = pygame.time.get_ticks()
+        
+        self.exp = 20
+        self.living = True
+        self.steps1 = 0
+        self.range1 = random.randint(500, 550)
+        self.steps2 = 0
+        self.range2 = random.randint(800, 950)
+        self.steps3 = 0
+        self.range3 = random.randint(500, 650)
+        self.loop_steps1 = 0
+        self.loop_steps2 = 0
+        self.loop_count = 0
+        
+        self.loop_range = random.randint(500, 650)
+        self.speed = 3
+
+        
+        self.troop_timer = pygame.time.get_ticks()
+
+    def update(self):
+        #   call movement and animate functions.
+
+        self.movement()
+        self.animate()
+
+        #   move and check collisions
+
+        self.rect.x += self.x_change
+        
+       
+        
+        self.rect.y += self.y_change
+        
+        
+        self.x_change = 0
+        self.y_change = 0
+
+        #   check health
+
+        if self.health <= 0:
+            self.living = False
+        
+        #   weapon firing
+
+    def movement(self):
+        
+        if self.steps1 < self.range1:
+            if self.living:
+                self.y_change -= self.speed
+                self.steps1 += self.speed
+        else:
+            self.facing = 'left'
+            if self.steps2 < self.range2:
+                if self.living:
+                    self.x_change -= self.speed
+                    self.steps2 += self.speed
+            else:
+                self.facing = 'up'
+                if self.steps3 < self.range3:
+                    if self.living:
+                        self.y_change -= self.speed
+                        self.steps3 += self.speed
+                else:
+                    self.facing = 'down'
+                    if self.loop_steps1 < self.loop_range:
+                        if self.living:
+                            self.y_change += self.speed
+                            self.loop_steps1 += self.speed
+                    else:
+                        self.facing = 'up'
+                        if self.loop_steps2 < self.loop_range:
+                            if self.loop_count >= 2:
+                                self.drop_troops()
+                            if self.living:
+                                self.y_change -= self.speed
+                                self.loop_steps2 += self.speed
+                        else:
+                            self.facing = 'down'
+                            self.loop_steps1 = 0
+                            self.loop_steps2 = 0
+                            self.loop_count += 1
+                    
+    def animate(self):
+        if self.living:
+
+            if self.facing == 'up':
+                self.image = self.up_animations[0]
+                
+                
+            if self.facing == 'down':
+                self.image = self.down_animations[0]
+                
+                
+            if self.facing == 'left':
+                self.image = self.left_animations[0]
+                
+                
+            if self.facing == 'right':
+                self.image = self.right_animations[0]
+                
+
+        else:
+            now = pygame.time.get_ticks()
+            if self.once:
+                self.game.building_explosion_sound.set_volume(0.5)
+                self.game.building_explosion_sound.play(0)
+                self.game.enemy_ground.remove(self)
+                
+                self.game.enemies.remove(self)
+                self.once = False
+            self.image = self.dead_animations[math.floor(self.animation_loop_1)]
+            self.animation_loop_1 += 0.1
+            if self.animation_loop_1 >= 4:
+                self.game.aircraft_killed += 1
+                self.kill()
+
+    def drop_troops(self):
+        now = pygame.time.get_ticks()
+        if now - self.troop_timer >= 620:
+            ParaTrooper(self.game, self.rect.x+12, self.rect.y+12)
+            self.game.troops_landed += 1
+            self.troop_timer = now
+
+
+class ParaTrooper(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = NPC_LAYER
+        self.groups = self.game.all_sprites, self.game.enemies
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x
+        self.y = y
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        self.x_change = 0
+        self.y_change = 0
+
+        if self.game.player.rect.x > self.x:
+            self.facing = 'right'
+        elif self.game.player.rect.x <= self.x:
+            self.facing = 'left'
+        
+        self.animation_loop_1 = 0
+        self.animation_loop_2 = 0
+
+        self.animations = [
+            self.game.paratrooper_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE),
+            self.game.paratrooper_spritesheet.get_sprite(25, 0, TILESIZE, TILESIZE),
+            self.game.paratrooper_spritesheet.get_sprite(50, 0, TILESIZE, TILESIZE),
+            self.game.paratrooper_spritesheet.get_sprite(75, 0, TILESIZE, TILESIZE),
+            self.game.paratrooper_spritesheet.get_sprite(100, 0, TILESIZE, TILESIZE),
+            self.game.paratrooper_spritesheet.get_sprite(125, 0, TILESIZE, TILESIZE),
+            self.game.paratrooper_spritesheet.get_sprite(150, 0, TILESIZE, TILESIZE),
+            self.game.paratrooper_spritesheet.get_sprite(175, 0, TILESIZE, TILESIZE)
+        ]
+
+        
+    
+
+        
+        self.image = self.game.paratrooper_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE)
+        
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.death_timer = pygame.time.get_ticks()
+        self.health = 10
+        
+        self.alive = True
+
+        self.range_max = 200
+        self.range_min = -200
+        self.missile_timer = pygame.time.get_ticks()
+
+    def update(self):
+        #   call movement and animate functions.
+
+        
+        self.animate()
+
+        #   move and check collisions
+
+        self.rect.x += self.x_change
+        
+       
+        
+        self.rect.y += self.y_change
+        
+        
+        self.x_change = 0
+        self.y_change = 0
+
+        #   check health
+        if self.health <= 0:
+            self.alive = False
+        
+        
+        #   weapon firing
+                    
+    def animate(self):
+        if self.alive:
+
+            self.image = self.animations[math.floor(self.animation_loop_2)]
+            self.animation_loop_2 += 0.3
+            if self.animation_loop_2 >= 8:
+                self.animation_loop_2 = 7
+
+        else:
+            self.kill()
 
 
 #   TERRAIN AND BUILDING SPRITES

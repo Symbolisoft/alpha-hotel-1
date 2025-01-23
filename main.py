@@ -53,6 +53,8 @@ class Game:
         self.scrub_spritesheet = SpriteSheet('img/scrub_spritesheet.png')
         self.tank_spritesheet = SpriteSheet('img/tank_spritesheet.png')
         self.factory = SpriteSheet('img/factory.png')
+        self.transport_spritesheet = SpriteSheet('img/transport_spritesheet.png')
+        self.paratrooper_spritesheet = SpriteSheet('img/paratrooper_spritesheet.png')
 
         #   fonts
         self.font = pygame.font.Font('jennifer.ttf', 26)
@@ -328,6 +330,8 @@ class Game:
                     SpAaG(self, j, i)
                 if col == 'T':
                     TankOneSpawnPoint(self, j, i)
+                if col == 'P':
+                    TransportPlane(self, j, i)
 
     def create_fencing_map_lv3(self):
         for i, row in enumerate(fencing_map_lv3):
@@ -349,6 +353,98 @@ class Game:
 
     def create_blocks_lv3(self):
         for i, row in enumerate(blocks_lv3):
+            for j, col in enumerate(row):
+                if col == '1':
+                    Block(self, j, i)
+
+    def create_ground_map_lv4(self):
+        for i, row in enumerate(ground_map_lv4):
+            for j, col in enumerate(row):
+                if col == 'D':
+                    Dirt(self, j, i)
+                if col == '2':
+                    TwoByTwoHole(self, j, i)
+                    RadarBuilding(self, j, i)
+                if col == '3':
+                    TwoByTwoHole(self, j, i)
+                    ObjectiveRadarBuilding(self, j, i)
+                if col == 'H':
+                    TwoByTwoHole(self, j, i)
+                    Hangar(self, j, i)
+                if col == 'X':
+                    RoadOneX(self, j, i)
+                if col == 'Y':
+                    RoadOneY(self, j, i)
+                if col == 'R':
+                    RoadOneUpRight(self, j, i)
+                if col == 'r':
+                    RoadOneDownRight(self, j, i)
+                if col == 'L':
+                    RoadOneUpLeft(self, j, i)
+                if col == 'l':
+                    RoadOneDownLeft(self, j, i)
+                if col == '1':
+                    Runway(self, j, i)
+                if col == 'C':
+                    TwoByTwoHole(self, j, i)
+                    ControlTower(self, j, i)
+                if col == 'P':
+                    TwoByTwoHole(self, j, i)
+                    HeliPad(self, j, i)
+                if col == 'W':
+                    Water(self, j, i)
+                if col == 'S':
+                    Dirt(self, j, i)
+                    Scrub(self, j, i)
+                if col == 'B':
+                    Dirt(self, j, i)
+                    Barrels(self, j, i)
+                if col == 'T':
+                    Dirt(self, j, i)
+                    PalmTree(self, j, i)
+                if col == 'w':
+                    Dirt(self, j, i)
+                    Watchtower(self, j, i)
+                if col == 'h':
+                    TwoByTwoHole(self, j, i)
+                if col == 'F':
+                    TwoByTwoHole(self, j, i)
+                    ObjectiveFactory(self, j, i)
+
+    def create_vehicle_map_lv4(self):
+        for i, row in enumerate(vehicle_map_lv4):
+            for j, col in enumerate(row):
+                if col == 'S':
+                    SAMTruck(self, j, i)
+                if col == 'I':
+                    Infantry(self, j, i)
+                if col == 'A':
+                    SpAaG(self, j, i)
+                if col == 'T':
+                    TankOneSpawnPoint(self, j, i)
+                if col == 'P':
+                    TransportPlane(self, j, i)
+
+    def create_fencing_map_lv4(self):
+        for i, row in enumerate(fencing_map_lv4):
+            for j, col in enumerate(row):
+                if col == 'X':
+                    FencingX(self, j, i)
+                if col == 'Y':
+                    FencingY(self, j, i)
+                if col == 'l':
+                    FencingBottomleft(self, j, i)
+                if col == 'L':
+                    FencingTopleft(self, j, i)
+                if col == 'r':
+                    FencingBottomRight(self, j, i)
+                if col == 'R':
+                    FencingTopRight(self, j, i)
+                if col == 'G':
+                    FencingGate(self, j, i)
+
+    def create_blocks_lv4(self):
+        for i, row in enumerate(blocks_lv4):
             for j, col in enumerate(row):
                 if col == '1':
                     Block(self, j, i)
@@ -694,6 +790,122 @@ class Game:
 
         self.tanks_killed = 0
 
+    def new_lv4(self):
+        #   start level 4
+        self.playing = True
+        
+        
+        self.all_sprites = pygame.sprite.LayeredUpdates()
+        self.p_sprite_group = pygame.sprite.LayeredUpdates()
+        self.blocks = pygame.sprite.LayeredUpdates()
+        self.enemies = pygame.sprite.LayeredUpdates()
+        self.attacks = pygame.sprite.LayeredUpdates()
+        self.ref_sprite = pygame.sprite.LayeredUpdates()
+        self.overlay_sprites = pygame.sprite.LayeredUpdates()
+        self.aoi = pygame.sprite.LayeredUpdates()
+        self.flares = pygame.sprite.LayeredUpdates()
+        self.helipads = pygame.sprite.LayeredUpdates()
+        self.enemy_ground = pygame.sprite.LayeredUpdates()
+        self.enemy_air = pygame.sprite.LayeredUpdates()
+
+        
+        self.main_theme.play(-1)
+        self.main_theme.set_volume(0.1)
+        self.helicopter_sound.set_volume(0.7)
+        self.helicopter_sound.play(-1)
+
+        self.create_ground_map_lv4()
+        self.create_vehicle_map_lv4()
+        self.create_fencing_map_lv4()
+        self.create_reference_sprite()
+        self.create_blocks_lv4()
+        self.player = Player(self, 14, 8)
+        self.aoi_sprite = AreaOfInfluence(self, 10, 4)
+        self.radar_screen = RadarScreen(self, 744, 260)
+        self.last = pygame.time.get_ticks()
+
+        for sprite in self.ref_sprite:
+            self.ref_x_pix = sprite.rect.x
+            self.ref_y_pix = sprite.rect.y
+        
+        if self.ref_x_pix != 0:
+            self.rel_x = self.ref_x_pix/TILESIZE
+        else:
+            self.rel_x = self.ref_x_pix
+
+        if self.ref_y_pix != 0:
+            self.rel_y = self.ref_y_pix/TILESIZE
+        else:
+            self.rel_y = self.ref_y_pix
+
+        self.healthbar_images = [
+            self.healthbar_spritesheet.get_sprite(0, 0, 600, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 540, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 480, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 420, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 360, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 300, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 240, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 180, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 120, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 60, 10)
+        ]
+
+        self.health_text = self.font.render('Health:', True, WHITE)
+        self.health_text_rect = self.health_text.get_rect(x= 20, y= 570)
+
+        self.convo_text = self.font_mid.render(self.convo, True, BLACK)
+        self.convo_text_rect = self.convo_text.get_rect(x= 100, y= 450)
+
+        
+
+        self.gun_ammo_text = self.font_mid.render(f'Gun Ammo: {self.player.gun_ammo}', True, WHITE)
+        self.gun_ammo_text_rect = self.gun_ammo_text.get_rect(x=740, y=45)
+
+        self.flare_ammo_text = self.font_mid.render(f'Flare Ammo: {self.player.flare_ammo}', True, WHITE)
+        self.flare_ammo_text_rect = self.flare_ammo_text.get_rect(x=740, y=70)
+
+        self.rocket_ammo_text = self.font_mid.render(f'Rocket Ammo: {self.player.rocket_ammo}', True, WHITE)
+        self.rocket_ammo_text_rect = self.rocket_ammo_text.get_rect(x=740, y=95)
+
+        self.atgm_ammo_text = self.font_mid.render(f'ATGM Ammo: {self.player.atgm_ammo}', True, WHITE)
+        self.atgm_ammo_text_rect = self.atgm_ammo_text.get_rect(x=740, y=120)
+
+        self.aam_ammo_text = self.font_mid.render(f'AAM Ammo: {self.player.aam_ammo}', True, WHITE)
+        self.aam_ammo_text_rect = self.aam_ammo_text.get_rect(x=740, y=145)
+
+        self.direction_text = self.font_mid.render(f'N', True, WHITE)
+        self.direction_text_rect = self.direction_text.get_rect(x=810, y=550)
+
+        self.controls_button = Button(0, 2, 120, 30, WHITE, BLACK, 'Controls', 26)
+        
+
+        self.healthbar = self.healthbar_images[0]
+        if self.player.pc_health > 90:
+            self.healthbar = self.healthbar_images[0]
+        elif self.player.pc_health == 90:
+            self.healthbar = self.healthbar_images[1]
+        elif self.player.pc_health >= 80:
+            self.healthbar = self.healthbar_images[2]
+        elif self.player.pc_health >= 70:
+            self.healthbar = self.healthbar_images[3]
+        elif self.player.pc_health >= 60:
+            self.healthbar = self.healthbar_images[4]
+        elif self.player.pc_health >= 50:
+            self.healthbar = self.healthbar_images[5]
+        elif self.player.pc_health >= 40:
+            self.healthbar = self.healthbar_images[6]
+        elif self.player.pc_health >= 30:
+            self.healthbar = self.healthbar_images[7]
+        elif self.player.pc_health >= 20:
+            self.healthbar = self.healthbar_images[8]
+        elif self.player.pc_health >= 10:
+            self.healthbar = self.healthbar_images[9]
+
+
+        self.aircraft_killed = 0
+        self.troops_landed = 0
+
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -745,6 +957,12 @@ class Game:
             if self.tanks_killed == 6:
                 self.mission_complete()
 
+        if self.level == 4:
+            if self.aircraft_killed == 2:
+                self.mission_complete()
+            elif self.troops_landed >= 10:
+                self.mission_failed()
+
         #   overlay items that needs to update variables
         now = pygame.time.get_ticks()
         if now - self.last >= 1000:
@@ -758,6 +976,15 @@ class Game:
                 keys = pygame.key.get_pressed()
                 if keys[pygame.K_r]:
                     self.weapon_menu()
+            else:
+                if self.level == 1:
+                    self.convo = 'Head South-East and destroy the RADAR facility. Be careful of the AA guns.'
+                if self.level == 2:
+                    self.convo = 'Destroy the enemy tanks coming from the South-East. Use rockets for best effect.'
+                if self.level == 3:
+                    self.convo = 'Destroy the tank factory, use ATGMs against the SAM trucks, green square = lock.'
+                if self.level == 4:
+                    self.convo = 'Destroy the enemy transport, before it drops its paratroopers in our territory.'
 
             self.convo_text = self.font_mid.render(self.convo, True, BLACK)
             self.convo_text_rect = self.convo_text.get_rect(x= 100, y= 450)
@@ -874,6 +1101,9 @@ class Game:
                 elif self.level == 3:
                     self.new_lv3()
                     self.main()
+                elif self.level == 4:
+                    self.new_lv4()
+                    self.main()
 
             self.screen.blit(self.game_over_bg, (0, 0))
             self.screen.blit(text, text_rect)
@@ -882,6 +1112,45 @@ class Game:
 
             self.clock.tick(FPS)
             pygame.display.update()
+
+    def mission_failed(self):
+            text = self.font.render('MISSION FAILED - You failed your objective.', True, WHITE)
+            text_rect = text.get_rect(center=(WIN_WIDTH/2, 350))
+
+            restart_button = Button(10, WIN_HEIGHT-60, 120, 50, WHITE, BLACK, 'Restart', 32)
+
+            for sprite in self.all_sprites:
+                sprite.kill()
+
+            while self.running:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        self.running = False
+
+                mouse_pos = pygame.mouse.get_pos()
+                mouse_pressed = pygame.mouse.get_pressed()
+
+                if restart_button.is_pressed(mouse_pos, mouse_pressed):
+                    if self.level == 1:
+                        self.new_lv1()
+                        self.main()
+                    elif self.level == 2:
+                        self.new_lv2()
+                        self.main()
+                    elif self.level == 3:
+                        self.new_lv3()
+                        self.main()
+                    elif self.level == 4:
+                        self.new_lv4()
+                        self.main()
+
+                self.screen.blit(self.game_over_bg, (0, 0))
+                self.screen.blit(text, text_rect)
+                self.screen.blit(restart_button.image, restart_button.rect)
+
+
+                self.clock.tick(FPS)
+                pygame.display.update()
 
     def mission_complete(self):
         
@@ -926,6 +1195,8 @@ class Game:
                     self.scene_three()
                 elif self.level == 4:
                     self.main_theme.stop()
+                    mission_completed = False
+                    self.scene_four()
                 elif self.level == 5:
                     self.main_theme.stop()
                 elif self.level == 6:
@@ -1126,6 +1397,59 @@ class Game:
                     self.main_theme.stop()
                     self.new_lv3()
                     scene_three = False
+                
+
+            self.screen.blit(self.menu_bg, (0, 0))
+            self.screen.blit(objective_image, (500, 300))
+            self.screen.blit(title, title_rect)
+            self.screen.blit(brief_line_1, brief_line_1_rect)
+            self.screen.blit(brief_line_2, brief_line_2_rect)
+            self.screen.blit(brief_line_3, brief_line_3_rect)
+            self.screen.blit(brief_line_4, brief_line_4_rect)
+            self.screen.blit(play_button.image, play_button.rect)
+            self.clock.tick(FPS)
+            pygame.display.update()
+
+    def scene_four(self):
+        scene_four = True
+
+        play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
+        title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
+        title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
+        objective_image = pygame.image.load('img/mission_4_brief.png')
+
+        brief_line_1 = self.font_mid.render('Welcome back Lieutenant, here we have the briefing for our next mission;', True, BLACK)
+        brief_line_1_rect = brief_line_1.get_rect(x=40, y=150)
+        brief_line_2 = self.font_mid.render('The tank factory raid was a great success, well done Lieutenant!  However, intelligence reports', True, BLACK)
+        brief_line_2_rect = brief_line_2.get_rect(x=40, y=175)
+        brief_line_3 = self.font_mid.render('enemy paratrooper transport approaching from the south.  We have no fast air at this base currently,', True, BLACK)
+        brief_line_3_rect = brief_line_3.get_rect(x=40, y=200)
+        brief_line_4 = self.font_mid.render('so you\'re our only hope, AAMs have been unlocked in the weapons menu.  Good luck Lieutenant!', True, BLACK)
+        brief_line_4_rect = brief_line_4.get_rect(x=40, y=225)
+
+        last = pygame.time.get_ticks()
+        self.main_theme.play(-1)
+        self.main_theme.set_volume(0.7)
+
+        while scene_four:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.main_theme.stop()
+                    scene_four = False
+                    self.running = False
+                    pygame.quit()
+                    sys.exit()
+                    
+
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_pressed = pygame.mouse.get_pressed()
+
+            if play_button.is_pressed(mouse_pos, mouse_pressed):
+                now = pygame.time.get_ticks()
+                if now - last >= 500:
+                    self.main_theme.stop()
+                    self.new_lv4()
+                    scene_four = False
                 
 
             self.screen.blit(self.menu_bg, (0, 0))

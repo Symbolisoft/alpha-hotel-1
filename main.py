@@ -2,7 +2,6 @@ import pygame
 import sys
 from sprites import *
 from config import *
-#   from inventory import *
 import math
 
 

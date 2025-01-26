@@ -2414,6 +2414,32 @@ class ParaTrooper(pygame.sprite.Sprite):
 
 #   TERRAIN AND BUILDING SPRITES
 
+class StationaryFrigate(pygame.sprite.Sprite):
+    
+    def __init__(self, game, x, y):
+
+        self.game = game
+        self._layer = BUILDING_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.width = TILESIZE*6
+        self.height = TILESIZE*2
+
+        image_to_load = pygame.image.load('img/frigate_stationary.png')
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.blit(image_to_load, (0,0))
+        self.image.set_colorkey(WHITE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+
+
+
 class Dirt(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
 
@@ -2737,7 +2763,7 @@ class Barrels(pygame.sprite.Sprite):
 
         self.game = game
         self._layer = BUILDING_LAYER
-        self.groups = self.game.all_sprites
+        self.groups = self.game.all_sprites, self.game.enemies
         pygame.sprite.Sprite.__init__(self, self.groups)
 
         self.x = x * TILESIZE
@@ -2745,14 +2771,51 @@ class Barrels(pygame.sprite.Sprite):
         self.width = TILESIZE
         self.height = TILESIZE
 
-        image_to_load = pygame.image.load('img/barrels.png')
-        self.image = pygame.Surface([self.width, self.height])
-        self.image.blit(image_to_load, (0,0))
-        self.image.set_colorkey(WHITE)
+        self.animations = [
+            self.game.barrels_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE)
+        ]
+
+
+        self.dead_animations = [
+            self.game.vehicle_explosion_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(25, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(50, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(75, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(100, 0, TILESIZE, TILESIZE)
+        ]
+      
+        self.image = self.game.barrels_spritesheet.get_sprite(0, 0, TILESIZE*2, TILESIZE*2)
+
 
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
+
+        self.health = 20
+        self.alive = True
+        self.animation_loop_1 = 0
+        self.once = True
+
+    def update(self):
+        if self.health <= 0:
+            self.alive = False
+        self.animate()
+
+    def animate(self):
+        if self.alive:
+            self.image = self.animations[0]
+
+        else:
+            now = pygame.time.get_ticks()
+            if self.once:
+                self.game.building_explosion_sound.set_volume(0.5)
+                self.game.building_explosion_sound.play(0)
+                self.game.enemies.remove(self)
+                self.once = False
+            self.image = self.dead_animations[math.floor(self.animation_loop_1)]
+            self.animation_loop_1 += 0.1
+            if self.animation_loop_1 >= 5:
+                self.animation_loop_1 = 3
 
 
 class PalmTree(pygame.sprite.Sprite):

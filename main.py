@@ -54,6 +54,7 @@ class Game:
         self.factory = SpriteSheet('img/factory.png')
         self.transport_spritesheet = SpriteSheet('img/transport_spritesheet.png')
         self.paratrooper_spritesheet = SpriteSheet('img/paratrooper_spritesheet.png')
+        self.barrels_spritesheet = SpriteSheet('img/barrels.png')
 
         #   fonts
         self.font = pygame.font.Font('jennifer.ttf', 26)
@@ -146,6 +147,8 @@ class Game:
                     Infantry(self, j, i)
                 if col == 'A':
                     SpAaG(self, j, i)
+                if col == 'f':
+                    StationaryFrigate(self, j, i)
 
     def create_fencing_map_lv1(self):
         for i, row in enumerate(fencing_map_lv1):

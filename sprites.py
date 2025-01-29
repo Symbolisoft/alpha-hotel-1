@@ -2438,8 +2438,6 @@ class StationaryFrigate(pygame.sprite.Sprite):
         self.rect.y = self.y
 
 
-
-
 class Dirt(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
 

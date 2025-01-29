@@ -1,3 +1,4 @@
+import pickle
 import pygame
 import sys
 from sprites import *
@@ -86,7 +87,32 @@ class Game:
         self.convo = ''
         self.text_timer = pygame.time.get_ticks()
         self.radar_animation_loop = 0
-      
+        self.score = 0
+
+        self.game_state = {
+            'level' : 0,
+            'score' : self.score
+        }
+
+    def save_game(self, filename='savegame.pkl'):
+        with open(filename, 'wb') as file:
+            pickle.dump(self.game_state, file)
+
+    def load_game(self, filename='savegame.pkl'):
+        with open(filename, 'rb') as file:
+            loaded = pickle.load(file)
+            self.level = loaded['level'] + 1
+            self.score = loaded['score']
+
+            if self.level == 1:
+                self.scene_one()
+            elif self.level == 2:
+                self.scene_two()
+            elif self.level == 3:
+                self.scene_three()
+            elif self.level == 4:
+                self.scene_four()
+
     def create_ground_map_lv1(self):
         for i, row in enumerate(ground_map_lv1):
             for j, col in enumerate(row):
@@ -567,6 +593,7 @@ class Game:
         self.playing = True
         
         
+        
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.p_sprite_group = pygame.sprite.LayeredUpdates()
         self.blocks = pygame.sprite.LayeredUpdates()
@@ -936,7 +963,11 @@ class Game:
         self.aoi.update()
         
         
-        #   conversation logic
+        
+        self.game_state = {
+            'level' : self.level,
+            'score' : self.score
+        }
 
         
         for sprite in self.ref_sprite:
@@ -1162,7 +1193,8 @@ class Game:
         text = self.font.render('Mission Complete - Congratulations Lieutenant.', True, WHITE)
         text_rect = text.get_rect(center=(WIN_WIDTH/2, 350))
 
-        next_button = Button(10, WIN_HEIGHT-60, 180, 50, WHITE, BLACK, 'Next Mission', 32)
+        next_button = Button(10, WIN_HEIGHT-120, 200, 50, WHITE, BLACK, 'Next Mission', 32)
+        save_button = Button(10, WIN_HEIGHT-60, 200, 50, WHITE, BLACK, 'Save Progress', 32)
         self.helicopter_sound.stop()
         self.main_theme.stop()
         self.main_theme.play(-1)
@@ -1204,9 +1236,13 @@ class Game:
                 elif self.level == 6:
                     self.main_theme.stop()
 
+            if save_button.is_pressed(mouse_pos, mouse_pressed):
+                self.save_game()
+
             self.screen.blit(self.game_over_bg, (0, 0))
             self.screen.blit(text, text_rect)
             self.screen.blit(next_button.image, next_button.rect)
+            self.screen.blit(save_button.image, save_button.rect)
 
 
             self.clock.tick(FPS)
@@ -1215,7 +1251,8 @@ class Game:
     def intro_screen(self):
         intro = True
 
-        play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Play', 32)
+        play_button = Button(10, WIN_HEIGHT-120, 100, 50, WHITE, BLACK, 'Play', 32)
+        load_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Load', 32)
         #   title = self.font.render('ALPHA-HOTEL-1', True, WHITE)
         #   title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 350))
         self.main_theme.play(-1)
@@ -1239,16 +1276,23 @@ class Game:
                     intro = False
                     self.scene_one()
                     
-                
+            if load_button.is_pressed(mouse_pos, mouse_pressed):
+                now = pygame.time.get_ticks()
+                if now - last >= 500:
+                    self.main_theme.stop()
+                    intro = False
+                    self.load_game()
 
             self.screen.blit(self.intro_bg, (0, 0))
             #   self.screen.blit(title, title_rect)
             self.screen.blit(play_button.image, play_button.rect)
+            self.screen.blit(load_button.image, load_button.rect)
             self.clock.tick(FPS)
             pygame.display.update()
 
     def scene_one(self):
         scene_one = True
+        self.level = 1
 
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
         title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
@@ -1289,6 +1333,7 @@ class Game:
                 now = pygame.time.get_ticks()
                 if now - last >= 500:
                     self.main_theme.stop()
+                    self.new_lv1()
                     scene_one = False
                 
 
@@ -1308,6 +1353,7 @@ class Game:
 
     def scene_two(self):
         scene_two = True
+        self.level = 2
 
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
         title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
@@ -1361,6 +1407,7 @@ class Game:
 
     def scene_three(self):
         scene_three = True
+        self.level = 3
 
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
         title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
@@ -1414,6 +1461,7 @@ class Game:
 
     def scene_four(self):
         scene_four = True
+        self.level = 4
 
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
         title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
@@ -1651,7 +1699,7 @@ class Game:
 
 g = Game()
 g.intro_screen()
-g.new_lv1()
+
 while g.running:
     g.main()
     

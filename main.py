@@ -100,18 +100,31 @@ class Game:
 
     def load_game(self, filename='savegame.pkl'):
         with open(filename, 'rb') as file:
-            loaded = pickle.load(file)
-            self.level = loaded['level'] + 1
-            self.score = loaded['score']
+            try:
+                loaded = pickle.load(file)
+                self.level = loaded['level'] + 1
+                self.score = loaded['score']
 
-            if self.level == 1:
+                if self.level == 1:
+                    self.main_theme.stop()
+                    self.scene_one()
+                elif self.level == 2:
+                    self.main_theme.stop()
+                    self.scene_two()
+                elif self.level == 3:
+                    self.main_theme.stop()
+                    self.scene_three()
+                elif self.level == 4:
+                    self.main_theme.stop()
+                    self.scene_four()
+
+            except:
+                self.level = 1
                 self.scene_one()
-            elif self.level == 2:
-                self.scene_two()
-            elif self.level == 3:
-                self.scene_three()
-            elif self.level == 4:
-                self.scene_four()
+
+    def clear_saved(self, filename='savegame.pkl'):
+        with open(filename, 'wb') as file:
+            pickle.dump({}, file)
 
     def create_ground_map_lv1(self):
         for i, row in enumerate(ground_map_lv1):
@@ -1159,6 +1172,8 @@ class Game:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         self.running = False
+                        pygame.quit()
+                        sys.exit()
 
                 mouse_pos = pygame.mouse.get_pos()
                 mouse_pressed = pygame.mouse.get_pressed()
@@ -1250,9 +1265,11 @@ class Game:
 
     def intro_screen(self):
         intro = True
+        
 
-        play_button = Button(10, WIN_HEIGHT-120, 100, 50, WHITE, BLACK, 'Play', 32)
-        load_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Load', 32)
+        play_button = Button(10, WIN_HEIGHT-180, 100, 50, WHITE, BLACK, 'Play', 32)
+        load_button = Button(10, WIN_HEIGHT-120, 100, 50, WHITE, BLACK, 'Load', 32)
+        clear_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Clear', 32)
         #   title = self.font.render('ALPHA-HOTEL-1', True, WHITE)
         #   title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 350))
         self.main_theme.play(-1)
@@ -1279,14 +1296,25 @@ class Game:
             if load_button.is_pressed(mouse_pos, mouse_pressed):
                 now = pygame.time.get_ticks()
                 if now - last >= 500:
-                    self.main_theme.stop()
-                    intro = False
-                    self.load_game()
+                    try:
+                        self.load_game()
+                        self.main_theme.stop()
+                        intro = False
+
+                    except:
+                        pass
+                    
+
+            if clear_button.is_pressed(mouse_pos, mouse_pressed):
+                now = pygame.time.get_ticks()
+                if now - last >= 500:
+                    self.clear_saved()
 
             self.screen.blit(self.intro_bg, (0, 0))
             #   self.screen.blit(title, title_rect)
             self.screen.blit(play_button.image, play_button.rect)
             self.screen.blit(load_button.image, load_button.rect)
+            self.screen.blit(clear_button.image, clear_button.rect)
             self.clock.tick(FPS)
             pygame.display.update()
 
@@ -1644,20 +1672,20 @@ class Game:
         title = self.font.render('Controls.', True, BLACK)
         title_rect = title.get_rect(center=(WIN_WIDTH/2, 50))
 
-        rockets_text = self.font_mid.render('Movement:-', True, BLACK)
-        rockets_text_rect = rockets_text.get_rect(x=200, y=111)
-        rockets_text_2 = self.font_mid.render('Use W,A,S,D or arrow keys to move.', True, BLACK)
-        rockets_text_2_rect = rockets_text_2.get_rect(x=200, y=131)
+        rockets_text = self.font.render('Movement:-', True, BLACK)
+        rockets_text_rect = rockets_text.get_rect(x=100, y=100)
+        rockets_text_2 = self.font.render('Use W,A,S,D or arrow keys to move.', True, BLACK)
+        rockets_text_2_rect = rockets_text_2.get_rect(x=100, y=131)
 
-        atgm_text = self.font_mid.render('Flares:-', True, BLACK)
-        atgm_text_rect = atgm_text.get_rect(x=200, y=236)
-        atgm_text_2 = self.font_mid.render('Press F for flares, to counter SAM threats.', True, BLACK)
-        atgm_text_2_rect = atgm_text_2.get_rect(x=200, y=256)
+        atgm_text = self.font.render('Flares:-', True, BLACK)
+        atgm_text_rect = atgm_text.get_rect(x=100, y=225)
+        atgm_text_2 = self.font.render(' \'F\' for flares, to counter SAM threats.', True, BLACK)
+        atgm_text_2_rect = atgm_text_2.get_rect(x=100, y=256)
 
-        aam_text = self.font_mid.render('Weapons:-', True, BLACK)
-        aam_text_rect = aam_text.get_rect(x=200, y=361)
-        aam_text_2 = self.font_mid.render('SPACE - Cannon, H - Unguided Rockets, G - Guided Missile', True, BLACK)
-        aam_text_2_rect = aam_text_2.get_rect(x=200, y=381)
+        aam_text = self.font.render('Weapons:-', True, BLACK)
+        aam_text_rect = aam_text.get_rect(x=100, y=350)
+        aam_text_2 = self.font.render('\'SPACE\' - Cannon, \'H\' - Unguided Rockets, \'G\' - Guided Missile', True, BLACK)
+        aam_text_2_rect = aam_text_2.get_rect(x=100, y=381)
 
         exit_txt = self.font.render('Press B to exit.', True, BLACK)
         exit_txt_rect = exit_txt.get_rect(x=WIN_WIDTH-200, y=WIN_HEIGHT-50)

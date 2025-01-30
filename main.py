@@ -1737,21 +1737,21 @@ class Game:
         title_rect = title.get_rect(center=(WIN_WIDTH/2, 50))
 
         rockets_text = self.font.render('Movement:-', True, BLACK)
-        rockets_text_rect = rockets_text.get_rect(x=100, y=100)
-        rockets_text_2 = self.font.render('Use W,A,S,D or arrow keys to move.', True, BLACK)
-        rockets_text_2_rect = rockets_text_2.get_rect(x=100, y=131)
+        rockets_text_rect = rockets_text.get_rect(x=50, y=100)
+        rockets_text_2 = self.font_mid.render('Use W,A,S,D, \'left stick\' or arrow keys to move.', True, BLACK)
+        rockets_text_2_rect = rockets_text_2.get_rect(x=50, y=131)
 
         atgm_text = self.font.render('Flares:-', True, BLACK)
-        atgm_text_rect = atgm_text.get_rect(x=100, y=225)
-        atgm_text_2 = self.font.render(' \'F\' for flares, to counter SAM threats.', True, BLACK)
-        atgm_text_2_rect = atgm_text_2.get_rect(x=100, y=256)
+        atgm_text_rect = atgm_text.get_rect(x=50, y=225)
+        atgm_text_2 = self.font_mid.render('controller \'Y\' of key \'F\' for flares, to counter SAM threats.', True, BLACK)
+        atgm_text_2_rect = atgm_text_2.get_rect(x=50, y=256)
 
         aam_text = self.font.render('Weapons:-', True, BLACK)
-        aam_text_rect = aam_text.get_rect(x=100, y=350)
-        aam_text_2 = self.font.render('\'SPACE\' - Cannon, \'H\' - Unguided Rockets, \'G\' - Guided Missile', True, BLACK)
-        aam_text_2_rect = aam_text_2.get_rect(x=100, y=381)
+        aam_text_rect = aam_text.get_rect(x=50, y=350)
+        aam_text_2 = self.font_mid.render('\'SPACE\' or controller \'A\' - Cannon, \'H\' or controller \'B\' - Unguided Rockets, \'G\' or controller \'X\' - Guided Missile', True, BLACK)
+        aam_text_2_rect = aam_text_2.get_rect(x=50, y=381)
 
-        exit_txt = self.font.render('Press B to exit.', True, BLACK)
+        exit_txt = self.font_mid.render('Press B to exit.', True, BLACK)
         exit_txt_rect = exit_txt.get_rect(x=WIN_WIDTH-200, y=WIN_HEIGHT-50)
 
         while controls_menu:

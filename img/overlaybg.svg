@@ -29,8 +29,8 @@
      inkscape:document-units="px"
      inkscape:clip-to-page="true"
      inkscape:zoom="0.69670056"
-     inkscape:cx="449.26044"
-     inkscape:cy="350.93986"
+     inkscape:cx="564.08739"
+     inkscape:cy="349.50453"
      inkscape:window-width="1360"
      inkscape:window-height="745"
      inkscape:window-x="-8"
@@ -183,15 +183,6 @@
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient5"
-       id="linearGradient6"
-       x1="119.06251"
-       y1="-39.717564"
-       x2="119.06251"
-       y2="9.1143894"
-       gradientUnits="userSpaceOnUse" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient5"
        id="linearGradient15"
        gradientUnits="userSpaceOnUse"
        x1="119.06251"
@@ -322,9 +313,11 @@
        d="M -34.162658,110.63654 H 193.17677"
        id="path4" />
     <g
-       id="g13">
+       id="g13"
+       transform="matrix(1.202542,0,0,1,-29.621764,0)"
+       style="stroke-width:0.911905;fill:#000000;fill-opacity:1">
       <rect
-         style="fill:#000000;fill-opacity:1;stroke-width:0.0772583;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
+         style="fill:#000000;fill-opacity:1;stroke-width:0.0704523;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
          id="rect4"
          width="238.12502"
          height="9.1143894"
@@ -333,7 +326,7 @@
          rx="0"
          ry="9.1143894" />
       <rect
-         style="mix-blend-mode:lighten;fill:url(#linearGradient6);stroke-width:0.0772583;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
+         style="mix-blend-mode:lighten;fill:#000000;stroke-width:0.0704523;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers;fill-opacity:1"
          id="rect5"
          width="238.12502"
          height="9.1143894"
@@ -375,13 +368,13 @@
        transform="matrix(0.9806407,0,0,0.94249676,15.107942,0)"><tspan
          x="197.3107"
          y="7.6983066"
-         id="tspan1">Level:</tspan></text>
+         id="tspan2">Level:</tspan></text>
     <g
        id="g15"
-       transform="matrix(1.088889,0,0,2.0901229,-10.583353,42.862502)"
-       style="stroke-width:0.662863">
+       transform="matrix(1.088889,0,0,2.1049657,-10.583353,42.727219)"
+       style="stroke-width:0.660522">
       <rect
-         style="fill:#000000;fill-opacity:1;stroke-width:0.0512113;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
+         style="fill:#000000;fill-opacity:1;stroke-width:0.0510304;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
          id="rect14"
          width="238.12502"
          height="9.1143894"
@@ -390,7 +383,7 @@
          rx="1.5258789e-05"
          ry="9.1143894" />
       <rect
-         style="mix-blend-mode:lighten;fill:url(#linearGradient15);stroke-width:0.0512113;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
+         style="mix-blend-mode:lighten;fill:url(#linearGradient15);stroke-width:0.0510304;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers"
          id="rect15"
          width="238.125"
          height="9.1143894"

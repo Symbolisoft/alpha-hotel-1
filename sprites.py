@@ -173,7 +173,7 @@ class Player(pygame.sprite.Sprite):
 
         
 
-        if keys[pygame.K_SPACE]:
+        if keys[pygame.K_SPACE] or self.game.fire_gun == True:
             now = pygame.time.get_ticks()
             if self.gun_ammo > 0:
                 if now - self.gun_timer >= 100:
@@ -181,9 +181,10 @@ class Player(pygame.sprite.Sprite):
                     self.game.gun_sound.set_volume(0.3)
                     self.game.gun_sound.play(0)
                     self.fire_cannon()
+                    self.game.fire_gun = False
                     self.gun_timer = now
 
-        if keys[pygame.K_f]:
+        if keys[pygame.K_f] or self.game.fire_flares == True:
             now = pygame.time.get_ticks()
             if self.flare_ammo > 0:
                 if now - self.flare_timer >= 300:
@@ -191,9 +192,10 @@ class Player(pygame.sprite.Sprite):
                     self.game.flare_sound.set_volume(0.9)
                     self.game.flare_sound.play(0)
                     self.fire_flares()
+                    self.game.fire_flares = False
                     self.flare_timer = now
 
-        if keys[pygame.K_h]:
+        if keys[pygame.K_h] or self.game.fire_rockets == True:
             now = pygame.time.get_ticks()
             if self.rocket_ammo > 0:
                 if now - self.rocket_timer >= 300:
@@ -202,9 +204,10 @@ class Player(pygame.sprite.Sprite):
                     self.game.missile_launch_sound.set_volume(0.5)
                     self.game.missile_launch_sound.play(0)
                     self.fire_rockets()
+                    self.game.fire_rockets = False
                     self.rocket_timer = now
 
-        if keys[pygame.K_g]:
+        if keys[pygame.K_g] or self.game.fire_missile == True:
             now = pygame.time.get_ticks()
             if self.game.aoi_sprite.target:
                 if self.atgm_ammo > 0:
@@ -214,6 +217,7 @@ class Player(pygame.sprite.Sprite):
                         self.game.missile_launch_sound.set_volume(0.5)
                         self.game.missile_launch_sound.play(0)
                         self.fire_missile()
+                        self.game.fire_missile = False
                         self.missile_timer = now
                 if self.aam_ammo > 0:
                     if now - self.missile_timer >= 1000:
@@ -222,6 +226,7 @@ class Player(pygame.sprite.Sprite):
                         self.game.missile_launch_sound.set_volume(0.5)
                         self.game.missile_launch_sound.play(0)
                         self.fire_missile()
+                        self.game.fire_missile = False
                         self.missile_timer = now
 
     def movement(self):

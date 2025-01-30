@@ -104,6 +104,12 @@ class Game:
 
         self.player_motion_x = 'none'
         self.player_motion_y = 'none'
+        self.fire_gun = False
+        self.fire_rockets = False
+        self.fire_missile = False
+        self.fire_flares = False
+
+        self.button_timer = pygame.time.get_ticks()
 
     def save_game(self, filename='savegame.pkl'):
         with open(filename, 'wb') as file:
@@ -969,61 +975,30 @@ class Game:
 
             
             if event.type == pygame.JOYBUTTONDOWN:
-                print(event.button)
+                
+                now = pygame.time.get_ticks()
                 # guns
                 if event.button == 0:
-                    now = pygame.time.get_ticks()
-                    if self.player.gun_ammo > 0:
-                        if now - self.player.gun_timer >= 100:
-                            self.player.gun_ammo -= 3
-                            self.gun_sound.set_volume(0.3)
-                            self.gun_sound.play(0)
-                            self.player.fire_cannon()
-                            self.player.gun_timer = now
+                    self.fire_gun = True
+                    
                 # rockets
-                if event.button == 1:
-                    now = pygame.time.get_ticks()
-                    if self.player.rocket_ammo > 0:
-                        if now - self.player.rocket_timer >= 300:
-                            self.player.rocket_ammo -= 3
-                            self.player.fire_rockets()
-                            self.missile_launch_sound.set_volume(0.5)
-                            self.missile_launch_sound.play(0)
-                            self.player.fire_rockets()
-                            self.player.rocket_timer = now
+                elif event.button == 1:
+                    self.fire_rockets = True
                 # missiles
-                if event.button == 2:
-                    now = pygame.time.get_ticks()
-                    if self.aoi_sprite.target:
-                        if self.player.atgm_ammo > 0:
-                            if now - self.player.missile_timer >= 1000:
-                                self.player.atgm_ammo -= 1
-                                
-                                self.missile_launch_sound.set_volume(0.5)
-                                self.missile_launch_sound.play(0)
-                                self.player.fire_missile()
-                                self.player.missile_timer = now
-                        if self.player.aam_ammo > 0:
-                            if now - self.player.missile_timer >= 1000:
-                                self.player.aam_ammo -= 1
-                                
-                                self.missile_launch_sound.set_volume(0.5)
-                                self.missile_launch_sound.play(0)
-                                self.player.fire_missile()
-                                self.player.missile_timer = now
+                elif event.button == 2:
+                    self.fire_missile = True
 
-                if event.button == 3:
-                    now = pygame.time.get_ticks()
-                    if self.player.flare_ammo > 0:
-                        if now - self.player.flare_timer >= 300:
-                            self.player.flare_ammo -= 2
-                            self.flare_sound.set_volume(0.9)
-                            self.flare_sound.play(0)
-                            self.player.fire_flares()
-                            self.player.flare_timer = now
+                elif event.button == 3:
+                    self.fire_flares = True
+
+                else:
+                    self.fire_gun = False
+                    self.fire_rockets = False
+                    self.fire_missile = False
+                    self.fire_flares = False
                 
             if event.type == pygame.JOYAXISMOTION:
-                print(event)
+                
                 if event.axis == 0:
                     if event.value > 0.5:
                         self.player_motion_x = 'right'

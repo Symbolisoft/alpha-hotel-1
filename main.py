@@ -12,8 +12,16 @@ class Game:
         self.screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 
         pygame.mixer.init()
+        pygame.joystick.init()
         self.clock = pygame.time.Clock()
         self.running = True
+
+        if pygame.joystick.get_count() > 0:
+            self.joystick = pygame.joystick.Joystick(0)
+            self.joystick.init()
+            print(f"Joystick name: {self.joystick.get_name()}")
+        else:
+            print("No joystick detected.")
 
         #   sounds
         self.main_theme = pygame.mixer.Sound('snd/main-theme.wav')
@@ -93,6 +101,9 @@ class Game:
             'level' : 0,
             'score' : self.score
         }
+
+        self.player_motion_x = 'none'
+        self.player_motion_y = 'none'
 
     def save_game(self, filename='savegame.pkl'):
         with open(filename, 'wb') as file:
@@ -957,6 +968,78 @@ class Game:
                 self.running = False
 
             
+            if event.type == pygame.JOYBUTTONDOWN:
+                print(event.button)
+                # guns
+                if event.button == 0:
+                    now = pygame.time.get_ticks()
+                    if self.player.gun_ammo > 0:
+                        if now - self.player.gun_timer >= 100:
+                            self.player.gun_ammo -= 3
+                            self.gun_sound.set_volume(0.3)
+                            self.gun_sound.play(0)
+                            self.player.fire_cannon()
+                            self.player.gun_timer = now
+                # rockets
+                if event.button == 1:
+                    now = pygame.time.get_ticks()
+                    if self.player.rocket_ammo > 0:
+                        if now - self.player.rocket_timer >= 300:
+                            self.player.rocket_ammo -= 3
+                            self.player.fire_rockets()
+                            self.missile_launch_sound.set_volume(0.5)
+                            self.missile_launch_sound.play(0)
+                            self.player.fire_rockets()
+                            self.player.rocket_timer = now
+                # missiles
+                if event.button == 2:
+                    now = pygame.time.get_ticks()
+                    if self.aoi_sprite.target:
+                        if self.player.atgm_ammo > 0:
+                            if now - self.player.missile_timer >= 1000:
+                                self.player.atgm_ammo -= 1
+                                
+                                self.missile_launch_sound.set_volume(0.5)
+                                self.missile_launch_sound.play(0)
+                                self.player.fire_missile()
+                                self.player.missile_timer = now
+                        if self.player.aam_ammo > 0:
+                            if now - self.player.missile_timer >= 1000:
+                                self.player.aam_ammo -= 1
+                                
+                                self.missile_launch_sound.set_volume(0.5)
+                                self.missile_launch_sound.play(0)
+                                self.player.fire_missile()
+                                self.player.missile_timer = now
+
+                if event.button == 3:
+                    now = pygame.time.get_ticks()
+                    if self.player.flare_ammo > 0:
+                        if now - self.player.flare_timer >= 300:
+                            self.player.flare_ammo -= 2
+                            self.flare_sound.set_volume(0.9)
+                            self.flare_sound.play(0)
+                            self.player.fire_flares()
+                            self.player.flare_timer = now
+                
+            if event.type == pygame.JOYAXISMOTION:
+                print(event)
+                if event.axis == 0:
+                    if event.value > 0.5:
+                        self.player_motion_x = 'right'
+                    elif event.value < -0.5:
+                        self.player_motion_x = 'left'
+                    else:
+                        self.player_motion_x = 'none'
+                if event.axis == 1:
+                    if event.value > 0.5:
+                        self.player_motion_y = 'down'
+                    elif event.value < -0.5:
+                        self.player_motion_y= 'up'
+                    else:
+                        self.player_motion_y = 'none'
+                
+            
         if self.player.health <= 0:
             self.main_theme.stop()
             self.helicopter_sound.stop()
@@ -968,14 +1051,12 @@ class Game:
 
         if self.controls_button.is_pressed(mouse_pos, mouse_pressed):
             self.controls_menu()
-       
+
     def update(self):
 
         self.all_sprites.update()
         self.overlay_sprites.update()
         self.aoi.update()
-        
-        
         
         self.game_state = {
             'level' : self.level,
@@ -1208,6 +1289,9 @@ class Game:
         text = self.font.render('Mission Complete - Congratulations Lieutenant.', True, WHITE)
         text_rect = text.get_rect(center=(WIN_WIDTH/2, 350))
 
+        saved = self.font.render('', True, RED)
+        saved_rect = saved.get_rect(center=(WIN_WIDTH/2, 370))
+
         next_button = Button(10, WIN_HEIGHT-120, 200, 50, WHITE, BLACK, 'Next Mission', 32)
         save_button = Button(10, WIN_HEIGHT-60, 200, 50, WHITE, BLACK, 'Save Progress', 32)
         self.helicopter_sound.stop()
@@ -1253,9 +1337,14 @@ class Game:
 
             if save_button.is_pressed(mouse_pos, mouse_pressed):
                 self.save_game()
+                saved = self.font.render('Progress Saved', True, RED)
+                saved_rect = saved.get_rect(center=(WIN_WIDTH/2, 380))
+                
+                
 
             self.screen.blit(self.game_over_bg, (0, 0))
             self.screen.blit(text, text_rect)
+            self.screen.blit(saved, saved_rect)
             self.screen.blit(next_button.image, next_button.rect)
             self.screen.blit(save_button.image, save_button.rect)
 
@@ -1724,14 +1813,11 @@ class Game:
             pygame.display.update()
 
 
-
 g = Game()
 g.intro_screen()
 
 while g.running:
     g.main()
-    
-
     g.game_over()
 
 pygame.quit()

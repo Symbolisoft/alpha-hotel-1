@@ -169,6 +169,9 @@ class Player(pygame.sprite.Sprite):
         #   weapon firing
 
         keys = pygame.key.get_pressed()
+        buttons = self.game.joystick
+
+        
 
         if keys[pygame.K_SPACE]:
             now = pygame.time.get_ticks()
@@ -224,7 +227,7 @@ class Player(pygame.sprite.Sprite):
     def movement(self):
         keys = pygame.key.get_pressed()
         #   left
-        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+        if keys[pygame.K_a] or keys[pygame.K_LEFT] or self.game.player_motion_x == 'left':
             
             for sprite in self.game.all_sprites:
                 sprite.rect.x += PLAYER_SPEED
@@ -233,7 +236,7 @@ class Player(pygame.sprite.Sprite):
             
             self.facing = 'left'
         #   right
-        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT] or self.game.player_motion_x == 'right':
             
             for sprite in self.game.all_sprites:
                 sprite.rect.x -= PLAYER_SPEED
@@ -242,7 +245,7 @@ class Player(pygame.sprite.Sprite):
             
             self.facing = 'right'
         #   up
-        if keys[pygame.K_w] or keys[pygame.K_UP]:
+        if keys[pygame.K_w] or keys[pygame.K_UP] or self.game.player_motion_y == 'up':
             
             for sprite in self.game.all_sprites:
                 sprite.rect.y += PLAYER_SPEED
@@ -251,7 +254,7 @@ class Player(pygame.sprite.Sprite):
             
             self.facing = 'up'
         #   down
-        if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+        if keys[pygame.K_s] or keys[pygame.K_DOWN] or self.game.player_motion_y == 'down':
             
             for sprite in self.game.all_sprites:
                 sprite.rect.y -= PLAYER_SPEED

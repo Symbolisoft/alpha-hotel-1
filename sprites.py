@@ -16,6 +16,19 @@ class SpriteSheet:
         return sprite
 
 
+class AlphaSpriteSheet:
+    def __init__(self, file):
+        self.sheet = pygame.image.load(file).convert()
+
+    def get_sprite(self, x, y, width, height):
+        sprite = pygame.Surface([width, height])
+
+        sprite.blit(self.sheet, (0, 0), (x, y, width, height))
+        #   sprite.set_colorkey(WHITE)
+        sprite.set_alpha(120)
+        return sprite
+
+
 #   PLAYER RELATED SPRITES
 
 class Player(pygame.sprite.Sprite):
@@ -169,7 +182,7 @@ class Player(pygame.sprite.Sprite):
         #   weapon firing
 
         keys = pygame.key.get_pressed()
-        buttons = self.game.joystick
+        
 
         
 
@@ -2421,6 +2434,106 @@ class ParaTrooper(pygame.sprite.Sprite):
 
 
 #   TERRAIN AND BUILDING SPRITES
+
+class Clouds(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = CLOUD_LAYER
+        self.groups = self.game.clouds
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = 0
+        self.y = 0
+        self.width = WIN_WIDTH
+        self.height = WIN_HEIGHT
+
+        self.x_change = 0
+        self.y_change = 0
+
+        self.facing = random.choice(['left', 'right'])
+        self.animation_loop_1 = 0
+        self.animation_loop_2 = 0
+
+        self.animations = [
+            self.game.cloud_spritesheet.get_sprite(0, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(50, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(100, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(150, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(200, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH+50, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH+100, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH+150, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH+200, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*2, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*2+50, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*2+100, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*2+150, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*2+200, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*3, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*3+50, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*3+100, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*3+150, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*3+200, 0, WIN_WIDTH, WIN_HEIGHT)
+        ]
+
+
+        
+      
+        self.image = self.game.cloud_spritesheet.get_sprite(0, 0, WIN_WIDTH, WIN_HEIGHT)
+        
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.health = 200
+        self.death_timer = pygame.time.get_ticks()
+        
+        self.exp = 50
+        self.alive = True
+
+        self.once = True
+
+        
+        self.missile_timer = pygame.time.get_ticks()
+
+    def update(self):
+        #   call movement and animate functions.
+
+        self.movement()
+        self.animate()
+
+        #   move and check collisions
+
+        self.rect.x += self.x_change
+        
+       
+        
+        self.rect.y += self.y_change
+        
+        
+        self.x_change = 0
+        self.y_change = 0
+
+        #   check health
+
+        if self.health <= 0:
+            self.alive = False
+        
+        #   weapon firing
+
+    def movement(self):
+        pass
+                 
+    def animate(self):
+        
+        self.image = self.animations[math.floor(self.animation_loop_1)]
+        
+        self.animation_loop_1 += 0.2
+        if self.animation_loop_1 >= 20:
+            self.animation_loop_1 = 0
+
 
 class StationaryFrigate(pygame.sprite.Sprite):
     

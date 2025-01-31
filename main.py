@@ -64,6 +64,7 @@ class Game:
         self.transport_spritesheet = SpriteSheet('img/transport_spritesheet.png')
         self.paratrooper_spritesheet = SpriteSheet('img/paratrooper_spritesheet.png')
         self.barrels_spritesheet = SpriteSheet('img/barrels.png')
+        self.cloud_spritesheet = AlphaSpriteSheet('img/clouds_spritesheet.png')
 
         #   fonts
         self.font = pygame.font.Font('jennifer.ttf', 26)
@@ -524,6 +525,7 @@ class Game:
         self.helipads = pygame.sprite.LayeredUpdates()
         self.enemy_ground = pygame.sprite.LayeredUpdates()
         self.enemy_air = pygame.sprite.LayeredUpdates()
+        self.clouds = pygame.sprite.LayeredUpdates()
 
         self.main_theme.play(-1)
         self.main_theme.set_volume(0.1)
@@ -538,6 +540,7 @@ class Game:
         self.player = Player(self, 14, 8)
         self.aoi_sprite = AreaOfInfluence(self, 10, 4)
         self.radar_screen = RadarScreen(self, 744, 260)
+        self.cloud_animation = Clouds(self, 0, 0)
         self.last = pygame.time.get_ticks()
 
         for sprite in self.ref_sprite:
@@ -636,6 +639,7 @@ class Game:
         self.helipads = pygame.sprite.LayeredUpdates()
         self.enemy_ground = pygame.sprite.LayeredUpdates()
         self.enemy_air = pygame.sprite.LayeredUpdates()
+        self.clouds = pygame.sprite.LayeredUpdates()
 
         
         self.main_theme.play(-1)
@@ -651,6 +655,7 @@ class Game:
         self.player = Player(self, 14, 8)
         self.aoi_sprite = AreaOfInfluence(self, 10, 4)
         self.radar_screen = RadarScreen(self, 744, 260)
+        self.cloud_animation = Clouds(self, 0, 0)
         self.last = pygame.time.get_ticks()
 
         for sprite in self.ref_sprite:
@@ -751,6 +756,8 @@ class Game:
         self.helipads = pygame.sprite.LayeredUpdates()
         self.enemy_ground = pygame.sprite.LayeredUpdates()
         self.enemy_air = pygame.sprite.LayeredUpdates()
+        self.clouds = pygame.sprite.LayeredUpdates()
+
 
         
         self.main_theme.play(-1)
@@ -766,6 +773,7 @@ class Game:
         self.player = Player(self, 14, 8)
         self.aoi_sprite = AreaOfInfluence(self, 10, 4)
         self.radar_screen = RadarScreen(self, 744, 260)
+        self.cloud_animation = Clouds(self, 0, 0)
         self.last = pygame.time.get_ticks()
 
         for sprite in self.ref_sprite:
@@ -866,6 +874,7 @@ class Game:
         self.helipads = pygame.sprite.LayeredUpdates()
         self.enemy_ground = pygame.sprite.LayeredUpdates()
         self.enemy_air = pygame.sprite.LayeredUpdates()
+        self.clouds = pygame.sprite.LayeredUpdates()
 
         
         self.main_theme.play(-1)
@@ -881,6 +890,7 @@ class Game:
         self.player = Player(self, 14, 8)
         self.aoi_sprite = AreaOfInfluence(self, 10, 4)
         self.radar_screen = RadarScreen(self, 744, 260)
+        self.cloud_animation = Clouds(self, 0, 0)
         self.last = pygame.time.get_ticks()
 
         for sprite in self.ref_sprite:
@@ -1032,6 +1042,7 @@ class Game:
         self.all_sprites.update()
         self.overlay_sprites.update()
         self.aoi.update()
+        self.clouds.update()
         
         self.game_state = {
             'level' : self.level,
@@ -1143,9 +1154,10 @@ class Game:
                 self.healthbar = self.healthbar_images[9]
        
     def draw(self):
-        self.screen.fill(BLACK)
+        #   self.screen.fill(BLACK)
         self.all_sprites.draw(self.screen)
         self.aoi.draw(self.screen)
+        self.clouds.draw(self.screen)
         
         
 

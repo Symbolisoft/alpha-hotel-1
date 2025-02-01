@@ -32,6 +32,9 @@ class Game:
         self.missile_explosion_sound = pygame.mixer.Sound('snd/missile-explosion.wav')
         self.helicopter_sound = pygame.mixer.Sound('snd/helicopter-sound.wav')
         self.building_explosion_sound = pygame.mixer.Sound('snd/building-explosion.wav')
+        self.jet_flyby_sound = pygame.mixer.Sound('snd/jet-plane-flyby.wav')
+        self.jet_loop_30s = pygame.mixer.Sound('snd/jet-loop-30s.wav')
+        self.tank_gun_sound = pygame.mixer.Sound('snd/gun-shot.wav')
 
         
 
@@ -66,6 +69,8 @@ class Game:
         self.paratrooper_spritesheet = SpriteSheet('img/paratrooper_spritesheet.png')
         self.barrels_spritesheet = SpriteSheet('img/barrels.png')
         self.cloud_spritesheet = AlphaSpriteSheet('img/clouds_spritesheet.png')
+        self.typhoon_spritesheet = SpriteSheet('img/typhoon_spritesheet.png')
+        self.tank_fire_spritesheet = SpriteSheet('img/tank_fire_spritesheet.png')
 
         #   fonts
         self.font = pygame.font.Font('jennifer.ttf', 26)
@@ -587,7 +592,86 @@ class Game:
                     TankOneSpawnPoint(self, j, i)
                 if col == 'f':
                     StationaryFrigate(self, j, i)
+                if col == '>':
+                    TyphoonCS1SpawnPoint(self, j, i)
 
+    def create_ground_map_lv5(self):
+        for i, row in enumerate(ground_map_lv5):
+            for j, col in enumerate(row):
+                if col == 'D':
+                    Dirt(self, j, i)
+                if col == '2':
+                    TwoByTwoHole(self, j, i)
+                    RadarBuilding(self, j, i)
+                if col == '3':
+                    TwoByTwoHole(self, j, i)
+                    ObjectiveRadarBuilding(self, j, i)
+                if col == 'H':
+                    TwoByTwoHole(self, j, i)
+                    Hangar(self, j, i)
+                if col == 'X':
+                    RoadOneX(self, j, i)
+                if col == 'Y':
+                    RoadOneY(self, j, i)
+                if col == 'R':
+                    RoadOneUpRight(self, j, i)
+                if col == 'r':
+                    RoadOneDownRight(self, j, i)
+                if col == 'L':
+                    RoadOneUpLeft(self, j, i)
+                if col == 'l':
+                    RoadOneDownLeft(self, j, i)
+                if col == '1':
+                    Runway(self, j, i)
+                if col == 'C':
+                    TwoByTwoHole(self, j, i)
+                    ControlTower(self, j, i)
+                if col == 'P':
+                    TwoByTwoHole(self, j, i)
+                    HeliPad(self, j, i)
+                if col == 'W':
+                    Water(self, j, i)
+                if col == 'S':
+                    Dirt(self, j, i)
+                    Scrub(self, j, i)
+                if col == 'B':
+                    Dirt(self, j, i)
+                    Barrels(self, j, i)
+                if col == 'T':
+                    Dirt(self, j, i)
+                    PalmTree(self, j, i)
+                if col == 'w':
+                    Dirt(self, j, i)
+                    Watchtower(self, j, i)
+                if col == 'h':
+                    TwoByTwoHole(self, j, i)
+                if col == 'F':
+                    TwoByTwoHole(self, j, i)
+                    ObjectiveFactory(self, j, i)
+
+    def create_vehicle_map_lv5(self):
+        for i, row in enumerate(vehicle_map_lv5):
+            for j, col in enumerate(row):
+                if col == 'S':
+                    SAMTruck(self, j, i)
+                if col == 'I':
+                    Infantry(self, j, i)
+                if col == 'A':
+                    SpAaG(self, j, i)
+                if col == 'T':
+                    TankTwoSpawnPoint(self, j, i)
+                if col == 'f':
+                    StationaryFrigate(self, j, i)
+                if col == '>':
+                    TyphoonCS1SpawnPoint(self, j, i)
+                if col == 'D':
+                    DeadTruck(self, j, i)
+
+    def create_blocks_lv5(self):
+        for i, row in enumerate(blocks_lv5):
+            for j, col in enumerate(row):
+                if col == '1':
+                    Block(self, j, i)
 
     #   level init
     def new_lv1(self):
@@ -1057,6 +1141,129 @@ class Game:
         self.aircraft_killed = 0
         self.troops_landed = 0
 
+    def new_lv5(self):
+        #   start level 4
+        self.playing = True
+        self.tanks_killed = 0
+        
+        
+        self.all_sprites = pygame.sprite.LayeredUpdates()
+        self.p_sprite_group = pygame.sprite.LayeredUpdates()
+        self.blocks = pygame.sprite.LayeredUpdates()
+        self.enemies = pygame.sprite.LayeredUpdates()
+        self.attacks = pygame.sprite.LayeredUpdates()
+        self.ref_sprite = pygame.sprite.LayeredUpdates()
+        self.overlay_sprites = pygame.sprite.LayeredUpdates()
+        self.aoi = pygame.sprite.LayeredUpdates()
+        self.flares = pygame.sprite.LayeredUpdates()
+        self.helipads = pygame.sprite.LayeredUpdates()
+        self.enemy_ground = pygame.sprite.LayeredUpdates()
+        self.enemy_air = pygame.sprite.LayeredUpdates()
+        self.clouds = pygame.sprite.LayeredUpdates()
+        for sprite in self.clouds:
+            sprite.kill()
+
+        
+        self.main_theme.play(-1)
+        self.main_theme.set_volume(0.1)
+        self.helicopter_sound.set_volume(0.7)
+        self.helicopter_sound.play(-1)
+
+        self.create_ground_map_lv5()
+        self.create_vehicle_map_lv5()
+        
+        self.create_reference_sprite()
+        self.create_blocks_lv5()
+        self.player = Player(self, 14, 8)
+        self.frigate_helipad = HelipadFrigate(self, 14, 8)
+        self.player.facing = 'right'
+        self.aoi_sprite = AreaOfInfluence(self, 10, 4)
+        self.radar_screen = RadarScreen(self, 744, 260)
+        self.cloud_animation = Clouds(self, 0, 0)
+        self.last = pygame.time.get_ticks()
+
+        for sprite in self.ref_sprite:
+            self.ref_x_pix = sprite.rect.x
+            self.ref_y_pix = sprite.rect.y
+        
+        if self.ref_x_pix != 0:
+            self.rel_x = self.ref_x_pix/TILESIZE
+        else:
+            self.rel_x = self.ref_x_pix
+
+        if self.ref_y_pix != 0:
+            self.rel_y = self.ref_y_pix/TILESIZE
+        else:
+            self.rel_y = self.ref_y_pix
+
+        self.healthbar_images = [
+            self.healthbar_spritesheet.get_sprite(0, 0, 600, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 540, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 480, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 420, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 360, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 300, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 240, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 180, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 120, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 60, 10)
+        ]
+
+        self.health_text = self.font.render('Health:', True, WHITE)
+        self.health_text_rect = self.health_text.get_rect(x= 20, y= 570)
+
+        self.convo_text = self.font_mid.render(self.convo, True, BLACK)
+        self.convo_text_rect = self.convo_text.get_rect(x= 100, y= 450)
+
+        
+
+        self.gun_ammo_text = self.font_mid.render(f'Gun Ammo: {self.player.gun_ammo}', True, WHITE)
+        self.gun_ammo_text_rect = self.gun_ammo_text.get_rect(x=740, y=45)
+
+        self.flare_ammo_text = self.font_mid.render(f'Flare Ammo: {self.player.flare_ammo}', True, WHITE)
+        self.flare_ammo_text_rect = self.flare_ammo_text.get_rect(x=740, y=70)
+
+        self.rocket_ammo_text = self.font_mid.render(f'Rocket Ammo: {self.player.rocket_ammo}', True, WHITE)
+        self.rocket_ammo_text_rect = self.rocket_ammo_text.get_rect(x=740, y=95)
+
+        self.atgm_ammo_text = self.font_mid.render(f'ATGM Ammo: {self.player.atgm_ammo}', True, WHITE)
+        self.atgm_ammo_text_rect = self.atgm_ammo_text.get_rect(x=740, y=120)
+
+        self.aam_ammo_text = self.font_mid.render(f'AAM Ammo: {self.player.aam_ammo}', True, WHITE)
+        self.aam_ammo_text_rect = self.aam_ammo_text.get_rect(x=740, y=145)
+
+        self.direction_text = self.font_mid.render(f'N', True, WHITE)
+        self.direction_text_rect = self.direction_text.get_rect(x=810, y=550)
+
+        self.controls_button = Button(0, 2, 120, 30, WHITE, BLACK, 'Controls', 26)
+        
+
+        self.healthbar = self.healthbar_images[0]
+        if self.player.pc_health > 90:
+            self.healthbar = self.healthbar_images[0]
+        elif self.player.pc_health == 90:
+            self.healthbar = self.healthbar_images[1]
+        elif self.player.pc_health >= 80:
+            self.healthbar = self.healthbar_images[2]
+        elif self.player.pc_health >= 70:
+            self.healthbar = self.healthbar_images[3]
+        elif self.player.pc_health >= 60:
+            self.healthbar = self.healthbar_images[4]
+        elif self.player.pc_health >= 50:
+            self.healthbar = self.healthbar_images[5]
+        elif self.player.pc_health >= 40:
+            self.healthbar = self.healthbar_images[6]
+        elif self.player.pc_health >= 30:
+            self.healthbar = self.healthbar_images[7]
+        elif self.player.pc_health >= 20:
+            self.healthbar = self.healthbar_images[8]
+        elif self.player.pc_health >= 10:
+            self.healthbar = self.healthbar_images[9]
+
+
+        self.aircraft_killed = 0
+        self.troops_landed = 0
+
     #   event handling
     def events(self):
         for event in pygame.event.get():
@@ -1159,6 +1366,16 @@ class Game:
                 self.mission_complete()
             elif self.troops_landed >= 10:
                 self.mission_failed()
+
+        if self.level == 5:
+            for sp in self.friendly_air:
+                if sp.done:
+                    for sprite in self.all_sprites:
+                        sprite.kill()
+                    self.main_theme.stop()
+                    self.helicopter_sound.stop()
+                    self.new_lv5()
+
 
         #   overlay items that needs to update variables
         now = pygame.time.get_ticks()
@@ -1963,6 +2180,7 @@ class Game:
         self.helipads = pygame.sprite.LayeredUpdates()
         self.enemy_ground = pygame.sprite.LayeredUpdates()
         self.enemy_air = pygame.sprite.LayeredUpdates()
+        self.friendly_air = pygame.sprite.LayeredUpdates()
         self.clouds = pygame.sprite.LayeredUpdates()
 
         self.main_theme.play(-1)
@@ -1974,8 +2192,8 @@ class Game:
         self.create_vehicle_map_cs1()
         self.create_reference_sprite()
         
-        self.player = CutScenePlayer(self, 8, 8)
-        self.frigate = CutSceneFrigate(self, 8, 8)
+        self.player = CutScenePlayer(self, 14, 8)
+        self.frigate = CutSceneFrigate(self, 14, 8)
         self.aoi_sprite = AreaOfInfluence(self, 6, 4)
         self.radar_screen = RadarScreen(self, 744, 260)
         self.cloud_animation = Clouds(self, 0, 0)

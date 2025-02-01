@@ -899,3 +899,47 @@ blocks_lv4 = [
     '1.....................................................................................................1',
     '1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111'
 ]
+
+#   CUTSCENE 1
+
+ground_map_cs1 = [
+    'DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDSSSSSSSSDD',
+    'DDDDDDDDDDDDDDDDDDTTTTTTTTTDDTTTTDDDDDDDDTTTTTTTTTDDTTTTDDDDDDDDDDTTTTTTTTTDDTTTTDDDDDDDDDDDDDDDDDTTTTTTTTTDDTTTTDDDD',
+    'DDDDDTTTTTTTTTDDTTTTDDDDDDDDTTTTTTTTTDDTTTTDDDDTTTTTTTTTDDTTTTDDDDDDDDDDTTTTTTTTTDDTTTTDDDDDDDDDDDDDDDDDDDDXXXXXXXXXX',
+    'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDYH.SSSSSDD',
+    'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDY..SSSSSDD',
+    'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDYwDSSSSSDD',
+    'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDYC.SSSSSDD',
+    'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDY..SSSSSDD',
+    'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDYXXXXXXXXX',
+    'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDYH.SSSSSDD',
+    'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDY..SSSSSDD',
+    'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDYwDSSSSSDD',
+    'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDYH.SSSSSDD',
+    'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDY..SSSSSDD',
+    'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDXXXXXXXXXX',
+    'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDSSSSSSSSDD',
+    'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDSSSSSSSSDD',
+    'WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWDDSSSSSSSSDD'
+]
+
+vehicle_map_cs1 = [
+    '.....................................................................................................................',
+    '............................................................................A.......S................................',
+    '......................................................................S........................A.....................',
+    '.........................................................................................................A...........',
+    '.....................................................................................................................',
+    '.........................................................................................................S...........',
+    '.....................................................................................................................',
+    '.........................................................................................................A...........',
+    '.....................................................................................................................',
+    '.........................................................................................................S...........',
+    '.....................................................................................................................',
+    '.........................................................................................................A...........',
+    '.....................................................................................................................',
+    '.....................................................................................................................',
+    '.....................................................................................................................',
+    '.....................................................................................................................',
+    '.....................................................................................................................',
+    '.....................................................................................................................'
+]

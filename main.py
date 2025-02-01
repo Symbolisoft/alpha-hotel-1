@@ -15,6 +15,7 @@ class Game:
         pygame.joystick.init()
         self.clock = pygame.time.Clock()
         self.running = True
+        self.playing = False
 
         if pygame.joystick.get_count() > 0:
             self.joystick = pygame.joystick.Joystick(0)
@@ -112,6 +113,7 @@ class Game:
 
         self.button_timer = pygame.time.get_ticks()
 
+    #   file managment
     def save_game(self, filename='savegame.pkl'):
         with open(filename, 'wb') as file:
             pickle.dump(self.game_state, file)
@@ -135,6 +137,9 @@ class Game:
                 elif self.level == 4:
                     self.main_theme.stop()
                     self.scene_four()
+                elif self.level == 5:
+                    self.main_theme.stop()
+                    self.scene_five()
 
             except:
                 self.level = 1
@@ -144,6 +149,7 @@ class Game:
         with open(filename, 'wb') as file:
             pickle.dump({}, file)
 
+    #   tilemapping
     def create_ground_map_lv1(self):
         for i, row in enumerate(ground_map_lv1):
             for j, col in enumerate(row):
@@ -299,6 +305,8 @@ class Game:
                     SpAaG(self, j, i)
                 if col == 'T':
                     TankOneSpawnPoint(self, j, i)
+                if col == 'f':
+                    StationaryFrigate(self, j, i)
 
     def create_fencing_map_lv2(self):
         for i, row in enumerate(fencing_map_lv2):
@@ -391,6 +399,8 @@ class Game:
                     TankOneSpawnPoint(self, j, i)
                 if col == 'P':
                     TransportPlane(self, j, i)
+                if col == 'f':
+                    StationaryFrigate(self, j, i)
 
     def create_fencing_map_lv3(self):
         for i, row in enumerate(fencing_map_lv3):
@@ -483,6 +493,8 @@ class Game:
                     TankOneSpawnPoint(self, j, i)
                 if col == 'P':
                     TransportPlane(self, j, i)
+                if col == 'f':
+                    StationaryFrigate(self, j, i)
 
     def create_fencing_map_lv4(self):
         for i, row in enumerate(fencing_map_lv4):
@@ -508,6 +520,76 @@ class Game:
                 if col == '1':
                     Block(self, j, i)
 
+    def create_ground_map_cs1(self):
+        for i, row in enumerate(ground_map_cs1):
+            for j, col in enumerate(row):
+                if col == 'D':
+                    Dirt(self, j, i)
+                if col == '2':
+                    TwoByTwoHole(self, j, i)
+                    RadarBuilding(self, j, i)
+                if col == '3':
+                    TwoByTwoHole(self, j, i)
+                    ObjectiveRadarBuilding(self, j, i)
+                if col == 'H':
+                    TwoByTwoHole(self, j, i)
+                    Hangar(self, j, i)
+                if col == 'X':
+                    RoadOneX(self, j, i)
+                if col == 'Y':
+                    RoadOneY(self, j, i)
+                if col == 'R':
+                    RoadOneUpRight(self, j, i)
+                if col == 'r':
+                    RoadOneDownRight(self, j, i)
+                if col == 'L':
+                    RoadOneUpLeft(self, j, i)
+                if col == 'l':
+                    RoadOneDownLeft(self, j, i)
+                if col == '1':
+                    Runway(self, j, i)
+                if col == 'C':
+                    TwoByTwoHole(self, j, i)
+                    ControlTower(self, j, i)
+                if col == 'P':
+                    TwoByTwoHole(self, j, i)
+                    HeliPad(self, j, i)
+                if col == 'W':
+                    Water(self, j, i)
+                if col == 'S':
+                    Dirt(self, j, i)
+                    Scrub(self, j, i)
+                if col == 'B':
+                    Dirt(self, j, i)
+                    Barrels(self, j, i)
+                if col == 'T':
+                    Dirt(self, j, i)
+                    PalmTree(self, j, i)
+                if col == 'w':
+                    Dirt(self, j, i)
+                    Watchtower(self, j, i)
+                if col == 'h':
+                    TwoByTwoHole(self, j, i)
+                if col == 'F':
+                    TwoByTwoHole(self, j, i)
+                    ObjectiveFactory(self, j, i)
+
+    def create_vehicle_map_cs1(self):
+        for i, row in enumerate(vehicle_map_cs1):
+            for j, col in enumerate(row):
+                if col == 'S':
+                    SAMTruck(self, j, i)
+                if col == 'I':
+                    Infantry(self, j, i)
+                if col == 'A':
+                    SpAaG(self, j, i)
+                if col == 'T':
+                    TankOneSpawnPoint(self, j, i)
+                if col == 'f':
+                    StationaryFrigate(self, j, i)
+
+
+    #   level init
     def new_lv1(self):
         #   start a new game
         self.playing = True
@@ -975,6 +1057,7 @@ class Game:
         self.aircraft_killed = 0
         self.troops_landed = 0
 
+    #   event handling
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -1037,6 +1120,7 @@ class Game:
         if self.controls_button.is_pressed(mouse_pos, mouse_pressed):
             self.controls_menu()
 
+    #   update sprites and ui
     def update(self):
 
         self.all_sprites.update()
@@ -1152,7 +1236,8 @@ class Game:
                 self.healthbar = self.healthbar_images[8]
             elif self.player.pc_health >= 10:
                 self.healthbar = self.healthbar_images[9]
-       
+
+    #   draw sprites and ui
     def draw(self):
         #   self.screen.fill(BLACK)
         self.all_sprites.draw(self.screen)
@@ -1182,12 +1267,14 @@ class Game:
         self.clock.tick(FPS)
         pygame.display.update()
 
+    #   main game loop
     def main(self):
         while self.playing:
             self.events()
             self.update()
             self.draw()
 
+    #   still screens
     def game_over(self):
         text = self.font.render('You have been shot down.', True, WHITE)
         text_rect = text.get_rect(center=(WIN_WIDTH/2, 350))
@@ -1274,10 +1361,10 @@ class Game:
         mission_completed = True
 
         text = self.font.render('Mission Complete - Congratulations Lieutenant.', True, WHITE)
-        text_rect = text.get_rect(center=(WIN_WIDTH/2, 350))
+        text_rect = text.get_rect(center=(WIN_WIDTH/2, 340))
 
         saved = self.font.render('', True, RED)
-        saved_rect = saved.get_rect(center=(WIN_WIDTH/2, 370))
+        saved_rect = saved.get_rect(center=(WIN_WIDTH/2, 367))
 
         next_button = Button(10, WIN_HEIGHT-120, 200, 50, WHITE, BLACK, 'Next Mission', 32)
         save_button = Button(10, WIN_HEIGHT-60, 200, 50, WHITE, BLACK, 'Save Progress', 32)
@@ -1289,6 +1376,8 @@ class Game:
         for sprite in self.all_sprites:
             sprite.kill()
         for sprite in self.overlay_sprites:
+            sprite.kill()
+        for sprite in self.clouds:
             sprite.kill()
         
 
@@ -1319,13 +1408,15 @@ class Game:
                     self.scene_four()
                 elif self.level == 5:
                     self.main_theme.stop()
+                    mission_completed = False
+                    self.scene_five()
                 elif self.level == 6:
                     self.main_theme.stop()
 
             if save_button.is_pressed(mouse_pos, mouse_pressed):
                 self.save_game()
                 saved = self.font.render('Progress Saved', True, RED)
-                saved_rect = saved.get_rect(center=(WIN_WIDTH/2, 380))
+                saved_rect = saved.get_rect(center=(WIN_WIDTH/2, 367))
                 
                 
 
@@ -1617,6 +1708,60 @@ class Game:
             self.clock.tick(FPS)
             pygame.display.update()
 
+    def scene_five(self):
+        scene_five = True
+        self.level = 5
+
+        play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
+        title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
+        title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
+        objective_image = pygame.image.load('img/mission_5_brief.png')
+
+        brief_line_1 = self.font_mid.render('Update: -  You have been moved aboard a frigate and are headed to the hazim straight, there will be', True, BLACK)
+        brief_line_1_rect = brief_line_1.get_rect(x=40, y=150)
+        brief_line_2 = self.font_mid.render('a strike group sent ahead to take out some key assets on our arrival.  Your job is to hold down the', True, BLACK)
+        brief_line_2_rect = brief_line_2.get_rect(x=40, y=175)
+        brief_line_3 = self.font_mid.render('LZ long enough for our defensive perimeter to be set.  We\'re not sure what the enemy might throw at', True, BLACK)
+        brief_line_3_rect = brief_line_3.get_rect(x=40, y=200)
+        brief_line_4 = self.font_mid.render('you out there so keep your eyes open and come back to the frigate to rearm and repair when necessary.', True, BLACK)
+        brief_line_4_rect = brief_line_4.get_rect(x=40, y=225)
+
+        last = pygame.time.get_ticks()
+        self.main_theme.play(-1)
+        self.main_theme.set_volume(0.7)
+
+        while scene_five:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.main_theme.stop()
+                    scene_five = False
+                    self.running = False
+                    pygame.quit()
+                    sys.exit()
+                    
+
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_pressed = pygame.mouse.get_pressed()
+
+            if play_button.is_pressed(mouse_pos, mouse_pressed):
+                now = pygame.time.get_ticks()
+                if now - last >= 500:
+                    self.main_theme.stop()
+                    self.cut_scene_one()
+                    scene_five = False
+                
+
+            self.screen.blit(self.menu_bg, (0, 0))
+            self.screen.blit(objective_image, (500, 300))
+            self.screen.blit(title, title_rect)
+            self.screen.blit(brief_line_1, brief_line_1_rect)
+            self.screen.blit(brief_line_2, brief_line_2_rect)
+            self.screen.blit(brief_line_3, brief_line_3_rect)
+            self.screen.blit(brief_line_4, brief_line_4_rect)
+            self.screen.blit(play_button.image, play_button.rect)
+            self.clock.tick(FPS)
+            pygame.display.update()
+
     def weapon_menu(self):
         weapon_menu = True
 
@@ -1799,7 +1944,129 @@ class Game:
 
             pygame.display.update()
 
+    #   animated cutscenes
+    def cut_scene_one(self):
+        
+        
+        self.playing = True
+        self.level = 5
+        
+        self.all_sprites = pygame.sprite.LayeredUpdates()
+        self.p_sprite_group = pygame.sprite.LayeredUpdates()
+        self.blocks = pygame.sprite.LayeredUpdates()
+        self.enemies = pygame.sprite.LayeredUpdates()
+        self.attacks = pygame.sprite.LayeredUpdates()
+        self.ref_sprite = pygame.sprite.LayeredUpdates()
+        self.overlay_sprites = pygame.sprite.LayeredUpdates()
+        self.aoi = pygame.sprite.LayeredUpdates()
+        self.flares = pygame.sprite.LayeredUpdates()
+        self.helipads = pygame.sprite.LayeredUpdates()
+        self.enemy_ground = pygame.sprite.LayeredUpdates()
+        self.enemy_air = pygame.sprite.LayeredUpdates()
+        self.clouds = pygame.sprite.LayeredUpdates()
 
+        self.main_theme.play(-1)
+        self.main_theme.set_volume(0.2)
+        self.helicopter_sound.set_volume(0.7)
+        self.helicopter_sound.play(-1)
+
+        self.create_ground_map_cs1()
+        self.create_vehicle_map_cs1()
+        self.create_reference_sprite()
+        
+        self.player = CutScenePlayer(self, 8, 8)
+        self.frigate = CutSceneFrigate(self, 8, 8)
+        self.aoi_sprite = AreaOfInfluence(self, 6, 4)
+        self.radar_screen = RadarScreen(self, 744, 260)
+        self.cloud_animation = Clouds(self, 0, 0)
+        self.last = pygame.time.get_ticks()
+
+        for sprite in self.ref_sprite:
+            self.ref_x_pix = sprite.rect.x
+            self.ref_y_pix = sprite.rect.y
+        
+        if self.ref_x_pix != 0:
+            self.rel_x = self.ref_x_pix/TILESIZE
+        else:
+            self.rel_x = self.ref_x_pix
+
+        if self.ref_y_pix != 0:
+            self.rel_y = self.ref_y_pix/TILESIZE
+        else:
+            self.rel_y = self.ref_y_pix
+        
+
+        self.healthbar_images = [
+            self.healthbar_spritesheet.get_sprite(0, 0, 600, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 540, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 480, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 420, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 360, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 300, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 240, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 180, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 120, 10),
+            self.healthbar_spritesheet.get_sprite(0, 0, 60, 10)
+        ]
+
+        self.health_text = self.font.render('Health:', True, WHITE)
+        self.health_text_rect = self.health_text.get_rect(x= 20, y= 570)
+
+        self.convo_text = self.font_mid.render(self.convo, True, BLACK)
+        self.convo_text_rect = self.convo_text.get_rect(x= 100, y= 450)
+
+        
+
+        self.gun_ammo_text = self.font_mid.render(f'Gun Ammo: {self.player.gun_ammo}', True, WHITE)
+        self.gun_ammo_text_rect = self.gun_ammo_text.get_rect(x=740, y=45)
+
+        self.flare_ammo_text = self.font_mid.render(f'Flare Ammo: {self.player.flare_ammo}', True, WHITE)
+        self.flare_ammo_text_rect = self.flare_ammo_text.get_rect(x=740, y=70)
+
+        self.rocket_ammo_text = self.font_mid.render(f'Rocket Ammo: {self.player.rocket_ammo}', True, WHITE)
+        self.rocket_ammo_text_rect = self.rocket_ammo_text.get_rect(x=740, y=95)
+
+        self.atgm_ammo_text = self.font_mid.render(f'ATGM Ammo: {self.player.atgm_ammo}', True, WHITE)
+        self.atgm_ammo_text_rect = self.atgm_ammo_text.get_rect(x=740, y=120)
+
+        self.aam_ammo_text = self.font_mid.render(f'AAM Ammo: {self.player.aam_ammo}', True, WHITE)
+        self.aam_ammo_text_rect = self.aam_ammo_text.get_rect(x=740, y=145)
+
+        self.direction_text = self.font_mid.render(f'N', True, WHITE)
+        self.direction_text_rect = self.direction_text.get_rect(x=810, y=550)
+
+        self.controls_button = Button(0, 2, 120, 30, WHITE, BLACK, 'Controls', 26)
+        
+
+        self.healthbar = self.healthbar_images[0]
+        if self.player.pc_health > 90:
+            self.healthbar = self.healthbar_images[0]
+        elif self.player.pc_health == 90:
+            self.healthbar = self.healthbar_images[1]
+        elif self.player.pc_health >= 80:
+            self.healthbar = self.healthbar_images[2]
+        elif self.player.pc_health >= 70:
+            self.healthbar = self.healthbar_images[3]
+        elif self.player.pc_health >= 60:
+            self.healthbar = self.healthbar_images[4]
+        elif self.player.pc_health >= 50:
+            self.healthbar = self.healthbar_images[5]
+        elif self.player.pc_health >= 40:
+            self.healthbar = self.healthbar_images[6]
+        elif self.player.pc_health >= 30:
+            self.healthbar = self.healthbar_images[7]
+        elif self.player.pc_health >= 20:
+            self.healthbar = self.healthbar_images[8]
+        elif self.player.pc_health >= 10:
+            self.healthbar = self.healthbar_images[9]
+
+            
+
+
+
+
+
+#   instantiaion
 g = Game()
 g.intro_screen()
 

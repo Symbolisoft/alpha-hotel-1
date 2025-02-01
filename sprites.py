@@ -4,6 +4,8 @@ import math
 import random
 
 
+#   SPRITESHEET CREATION
+
 class SpriteSheet:
     def __init__(self, file):
         self.sheet = pygame.image.load(file).convert()
@@ -2460,21 +2462,29 @@ class Clouds(pygame.sprite.Sprite):
             self.game.cloud_spritesheet.get_sprite(100, 0, WIN_WIDTH, WIN_HEIGHT),
             self.game.cloud_spritesheet.get_sprite(150, 0, WIN_WIDTH, WIN_HEIGHT),
             self.game.cloud_spritesheet.get_sprite(200, 0, WIN_WIDTH, WIN_HEIGHT),
-            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH, 0, WIN_WIDTH, WIN_HEIGHT),
-            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH+50, 0, WIN_WIDTH, WIN_HEIGHT),
-            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH+100, 0, WIN_WIDTH, WIN_HEIGHT),
-            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH+150, 0, WIN_WIDTH, WIN_HEIGHT),
-            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH+200, 0, WIN_WIDTH, WIN_HEIGHT),
-            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*2, 0, WIN_WIDTH, WIN_HEIGHT),
-            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*2+50, 0, WIN_WIDTH, WIN_HEIGHT),
-            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*2+100, 0, WIN_WIDTH, WIN_HEIGHT),
-            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*2+150, 0, WIN_WIDTH, WIN_HEIGHT),
-            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*2+200, 0, WIN_WIDTH, WIN_HEIGHT),
-            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*3, 0, WIN_WIDTH, WIN_HEIGHT),
-            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*3+50, 0, WIN_WIDTH, WIN_HEIGHT),
-            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*3+100, 0, WIN_WIDTH, WIN_HEIGHT),
-            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*3+150, 0, WIN_WIDTH, WIN_HEIGHT),
-            self.game.cloud_spritesheet.get_sprite(WIN_WIDTH*3+200, 0, WIN_WIDTH, WIN_HEIGHT)
+            self.game.cloud_spritesheet.get_sprite(250, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(300, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(350, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(400, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(450, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(500, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(550, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(600, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(650, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(700, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(750, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(800, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(850, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(900, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(950, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(1000, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(1050, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(1100, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(1150, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(1200, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(1250, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(1300, 0, WIN_WIDTH, WIN_HEIGHT),
+            self.game.cloud_spritesheet.get_sprite(1350, 0, WIN_WIDTH, WIN_HEIGHT)
         ]
 
 
@@ -2531,7 +2541,7 @@ class Clouds(pygame.sprite.Sprite):
         self.image = self.animations[math.floor(self.animation_loop_1)]
         
         self.animation_loop_1 += 0.2
-        if self.animation_loop_1 >= 20:
+        if self.animation_loop_1 >= 28:
             self.animation_loop_1 = 0
 
 
@@ -3817,3 +3827,359 @@ class Block(pygame.sprite.Sprite):
         self.rect.y = self.y
 
 
+#   CUTSCENE SPRITES
+
+class CutScenePlayer(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = PLAYER_LAYER
+        self.groups = self.game.all_sprites, self.game.p_sprite_group
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE-10
+        self.y = y * TILESIZE
+        self.width = TILESIZE*2
+        self.height = TILESIZE*2
+
+        self.x_change = 0
+        self.y_change = 0
+
+        self.facing = 'right'
+        self.animation_loop_1 = 0
+        self.animation_loop_2 = 0
+
+        self.down_ground_animations = [
+            self.game.character_spritesheet.get_sprite(0, 100, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(50, 100, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(100, 100, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(150, 100, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.down_moving_animations = [
+            self.game.character_spritesheet.get_sprite(0, 150, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(50, 150, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(100, 150, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(150, 150, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.up_ground_animations = [
+            self.game.character_spritesheet.get_sprite(0, 0, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(50, 0, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(100, 0, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(150, 0, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.up_moving_animations = [
+            self.game.character_spritesheet.get_sprite(0, 50, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(50, 50, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(100, 50, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(150, 50, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.left_ground_animations = [
+            self.game.character_spritesheet.get_sprite(0, 300, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(50, 300, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(100, 300, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(150, 300, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.left_moving_animations = [
+            self.game.character_spritesheet.get_sprite(0, 350, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(50, 350, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(100, 350, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(150, 350, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.right_ground_animations = [
+            self.game.character_spritesheet.get_sprite(0, 200, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(50, 200, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(100, 200, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(150, 200, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.right_moving_animations = [
+            self.game.character_spritesheet.get_sprite(0, 250, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(50, 250, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(100, 250, TILESIZE*2, TILESIZE*2),
+            self.game.character_spritesheet.get_sprite(150, 250, TILESIZE*2, TILESIZE*2)
+        ]
+
+        
+        self.image = self.game.character_spritesheet.get_sprite(0, 0, TILESIZE*2, TILESIZE*2)
+        
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.armed_melee = False
+        self.armed_ranged = False
+
+        self.health = 100
+        self.pc_health = 100
+        self.level = 1
+        self.speed = 1
+        self.steps1 = 0
+        self.range1 = 1050
+        
+        self.gun_ammo = 500
+        self.flare_ammo = 50
+        self.rocket_ammo = 0
+        self.atgm_ammo = 0
+        self.aam_ammo = 0
+
+        
+
+        self.landed = False
+
+        self.flare_timer = pygame.time.get_ticks()
+        self.gun_timer = pygame.time.get_ticks()
+        self.rocket_timer = pygame.time.get_ticks()
+        self.missile_timer = pygame.time.get_ticks()
+
+    
+
+    def update(self):
+        #   call movement and animate functions.
+
+        self.movement()
+        self.animate()
+
+        #   move and check collisions
+
+        self.rect.x += self.x_change
+        self.collide_blocks('x')
+       
+        
+        self.rect.y += self.y_change
+        self.collide_blocks('y')
+        
+        self.x_change = 0
+        self.y_change = 0
+
+        #   cap health
+        self.max_health = 98 + self.level * 2
+
+        if self.health >= self.max_health:
+            self.health = self.max_health
+
+        self.dec_health = self.health / self.max_health
+        self.pc_health = self.dec_health * 100
+
+        #   cap level
+        if self.level > 99:
+            self.level = 99
+
+
+        if self.rocket_ammo < 0:
+            self.rocket_ammo = 0
+        if self.gun_ammo < 0:
+            self.gun_ammo = 0
+        if self.flare_ammo < 0:
+            self.flare_ammo = 0
+        if self.atgm_ammo < 0:
+            self.atgm_ammo = 0
+        if self.aam_ammo < 0:
+            self.aam_ammo = 0
+
+        #   weapon firing
+
+        keys = pygame.key.get_pressed()
+   
+    def movement(self):
+        if self.steps1 < self.range1:
+            self.x_change += self.speed * 2
+            for sprite in self.game.all_sprites:
+                sprite.rect.x -= self.speed
+            self.steps1 += self.speed
+
+    def collide_blocks(self, direction):
+        if direction == 'x':
+            hits = pygame.sprite.spritecollide(self, self.game.blocks, False)
+            if hits:
+                if self.x_change > 0:
+                    self.rect.x = hits[0].rect.left - self.rect.width
+                    for sprite in self.game.all_sprites:
+                        sprite.rect.x += PLAYER_SPEED
+                    
+                if self.x_change < 0:
+                    self.rect.x = hits[0].rect.right
+                    for sprite in self.game.all_sprites:
+                        sprite.rect.x -= PLAYER_SPEED
+                    
+
+        if direction == 'y':
+            hits = pygame.sprite.spritecollide(self, self.game.blocks, False)
+            if hits:
+                if self.y_change > 0:
+                    self.rect.y = hits[0].rect.top - self.rect.height
+                    for sprite in self.game.all_sprites:
+                        sprite.rect.y += PLAYER_SPEED
+                    
+                if self.y_change < 0:
+                    self.rect.y = hits[0].rect.bottom
+                    for sprite in self.game.all_sprites:
+                        sprite.rect.y -= PLAYER_SPEED
+                    
+    def animate(self):
+
+        if self.facing == 'up':
+            if self.y_change == 0:
+                self.image = self.up_ground_animations[math.floor(self.animation_loop_1)]
+                self.animation_loop_1 += 0.3
+                if self.animation_loop_1 >= 4:
+                    self.animation_loop_1 = 0
+            else:
+                self.image = self.up_moving_animations[math.floor(self.animation_loop_2)]
+                self.animation_loop_2 += 0.3
+                if self.animation_loop_2 >= 4:
+                    self.animation_loop_2 = 0
+
+        if self.facing == 'down':
+            if self.y_change == 0:
+                self.image = self.down_ground_animations[math.floor(self.animation_loop_1)]
+                self.animation_loop_1 += 0.3
+                if self.animation_loop_1 >= 4:
+                    self.animation_loop_1 = 0
+            else:
+                self.image = self.down_moving_animations[math.floor(self.animation_loop_2)]
+                self.animation_loop_2 += 0.3
+                if self.animation_loop_2 >= 4:
+                    self.animation_loop_2 = 0
+
+        if self.facing == 'left':
+            if self.x_change == 0:
+                self.image = self.left_ground_animations[math.floor(self.animation_loop_1)]
+                self.animation_loop_1 += 0.3
+                if self.animation_loop_1 >= 4:
+                    self.animation_loop_1 = 0
+            else:
+                self.image = self.left_moving_animations[math.floor(self.animation_loop_2)]
+                self.animation_loop_2 += 0.3
+                if self.animation_loop_2 >= 4:
+                    self.animation_loop_2 = 0
+
+        if self.facing == 'right':
+            if self.x_change == 0:
+                self.image = self.right_ground_animations[math.floor(self.animation_loop_1)]
+                self.animation_loop_1 += 0.3
+                if self.animation_loop_1 >= 4:
+                    self.animation_loop_1 = 0
+            else:
+                self.image = self.right_moving_animations[math.floor(self.animation_loop_2)]
+                self.animation_loop_2 += 0.3
+                if self.animation_loop_2 >= 4:
+                    self.animation_loop_2 = 0
+
+    def fire_cannon(self):
+        if self.facing == 'up':
+            CannonFireY(self.game, self.rect.x + 12, self.rect.y - 75)
+        elif self.facing == 'down':
+            CannonFireY(self.game, self.rect.x + 12, self.rect.y + 50)
+        elif self.facing == 'left':
+            CannonFireX(self.game, self.rect.x - 75, self.rect.y + 12)
+        elif self.facing == 'right':
+            CannonFireX(self.game, self.rect.x + 50, self.rect.y + 12)
+
+    def fire_flares(self):
+        if self.facing == 'up':
+            Flares(self.game, self.rect.x + 12, self.rect.y + 50)
+        elif self.facing == 'down':
+            Flares(self.game, self.rect.x + 12, self.rect.y - 25)
+        elif self.facing == 'left':
+            Flares(self.game, self.rect.x + 50, self.rect.y +12)
+        elif self.facing == 'right':
+            Flares(self.game, self.rect.x - 25, self.rect.y + 12)
+
+    def fire_rockets(self):
+        if self.facing == 'up':
+            UnguidedRocket(self.game, self.rect.x+12, self.rect.y+12)
+        elif self.facing == 'down':
+            UnguidedRocket(self.game, self.rect.x+12, self.rect.y+12)
+        elif self.facing == 'left':
+            UnguidedRocket(self.game, self.rect.x+12, self.rect.y+12)
+        elif self.facing == 'right':
+            UnguidedRocket(self.game, self.rect.x+12, self.rect.y+12)
+
+    def fire_missile(self):
+        try:
+            if self.atgm_ammo > 0:
+                if self.facing == 'up':
+                    AtGm(self.game, self.rect.x+12, self.rect.y)
+                elif self.facing == 'down':
+                    AtGm(self.game, self.rect.x+12, self.rect.y+12)
+                elif self.facing == 'left':
+                    AtGm(self.game, self.rect.x+12, self.rect.y)
+                elif self.facing == 'right':
+                    AtGm(self.game, self.rect.x+12, self.rect.y)
+
+            if self.aam_ammo > 0:
+                if self.facing == 'up':
+                    AaM(self.game, self.rect.x+12, self.rect.y)
+                elif self.facing == 'down':
+                    AaM(self.game, self.rect.x+12, self.rect.y+12)
+                elif self.facing == 'left':
+                    AaM(self.game, self.rect.x+12, self.rect.y)
+                elif self.facing == 'right':
+                    AaM(self.game, self.rect.x+12, self.rect.y)
+        except:
+            pass
+            
+
+class CutSceneFrigate(pygame.sprite.Sprite):
+    
+    def __init__(self, game, x, y):
+
+        self.game = game
+        self._layer = BUILDING_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.width = TILESIZE*6
+        self.height = TILESIZE*2
+
+        image_to_load = pygame.image.load('img/cut_scene_frigate.png')
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.blit(image_to_load, (0,0))
+        self.image.set_colorkey(WHITE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.x_change = 0
+        self.y_change = 0
+        self.steps1 = 0
+        self.range1 = 1050
+        self.speed = 1
+
+
+    def update(self):
+        #   call movement and animate functions.
+
+        self.movement()
+        
+
+        #   move and check collisions
+
+        self.rect.x += self.x_change
+        
+       
+        
+        self.rect.y += self.y_change
+        
+        
+        self.x_change = 0
+        self.y_change = 0
+
+   
+    def movement(self):
+        if self.steps1 < self.range1:
+            self.x_change += self.speed * 2
+            for sprite in self.game.all_sprites:
+                sprite.rect.x -= self.speed
+            self.steps1 += self.speed
+    
+        

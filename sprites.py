@@ -2273,12 +2273,12 @@ class TankTwo(pygame.sprite.Sprite):
         self.steps1 = 0
         self.range1 = random.randint(100, 150)
         self.steps2 = 0
-        self.range2 = random.randint(1000, 1250)
+        self.range2 = random.randint(1220, 1275)
         self.steps3 = 0
         self.range3 = random.randint(100, 150)
         self.speed = 1
         self.steps4 = 0
-        self.range4 = random.randint(300, 350)
+        self.range4 = random.randint(350, 400)
 
         
         self.fire_timer = pygame.time.get_ticks()
@@ -2410,12 +2410,21 @@ class TankFire(pygame.sprite.Sprite):
 
     def update(self):
         self.animate()
+        self.collide()
 
     def animate(self):
         self.image = self.images[math.floor(self.animation_loop)]
         self.animation_loop += 0.1
         if self.animation_loop >= 3:
             self.kill()
+
+    def collide(self):
+        hits_buildings = pygame.sprite.spritecollide(self, self.game.buildings, False)
+        hits_friendly = pygame.sprite.spritecollide(self, self.game.friendly_ground, False)
+        if hits_buildings:
+            hits_buildings[0].health -= 0.3
+        if hits_friendly:
+            hits_friendly[0].health -= 1
 
 
 class TransportPlane(pygame.sprite.Sprite):
@@ -2784,7 +2793,185 @@ class DeadTruck(pygame.sprite.Sprite):
             self.animation_loop_1 = 3
                 
 
-    
+#   FRIENDLY RELATED SPRITES
+
+class LandingCraftFriendly(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = NPC_LAYER
+        self.groups = self.game.all_sprites, self.game.friendly_ground
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.origin_x = self.x
+        self.origin_y = self.y
+        self.width = TILESIZE*2
+        self.height = TILESIZE
+
+        self.x_change = 0
+        self.y_change = 0
+
+        self.facing = 'up'
+        self.animation_loop_1 = 0
+        self.animation_loop_2 = 0
+
+        self.once = True
+
+        
+        self.animations = [
+            self.game.landing_craft_spritesheet.get_sprite(0, 0, TILESIZE*2, TILESIZE),
+            self.game.landing_craft_spritesheet.get_sprite(50, 0, TILESIZE*2, TILESIZE),
+            self.game.landing_craft_spritesheet.get_sprite(100, 0, TILESIZE*2, TILESIZE),
+            self.game.landing_craft_spritesheet.get_sprite(150, 0, TILESIZE*2, TILESIZE),
+            self.game.landing_craft_spritesheet.get_sprite(200, 0, TILESIZE*2, TILESIZE)
+        ]
+
+
+        self.firing_animation = self.game.tank_spritesheet.get_sprite(50, 25, TILESIZE, TILESIZE)
+
+        self.dead_animations = [
+            self.game.vehicle_explosion_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(25, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(50, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(75, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(100, 0, TILESIZE, TILESIZE)
+        ]
+      
+        self.image = self.game.tank_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.health = 2000
+        self.death_timer = pygame.time.get_ticks()
+        
+        self.exp = 20
+        self.living = True
+        self.steps1 = 0
+        self.range1 = 485
+        
+
+        self.at_sea = True
+        self.speed = 1
+        self.landed_count = 0
+
+        
+        self.fire_timer = pygame.time.get_ticks()
+
+    def update(self):
+        #   call movement and animate functions.
+
+        
+        self.animate()
+        self.movement()
+
+        #   move and check collisions
+
+        self.rect.x += self.x_change
+        
+       
+        
+        self.rect.y += self.y_change
+        
+        
+        self.x_change = 0
+        self.y_change = 0
+
+        #   check health
+
+        if self.health <= 0:
+            self.living = False
+        
+        #   weapon firing
+
+    def movement(self):
+        
+        if self.steps1 < self.range1:
+            if self.living:
+                self.x_change += self.speed
+                self.steps1 += self.speed
+        else:
+            self.at_sea = False
+
+    def animate(self):
+        if self.living:
+            if self.at_sea:
+                self.image = self.animations[0]
+            else:
+                self.image = self.animations[math.floor(self.animation_loop_2)]
+                self.animation_loop_2 += 0.1
+                if self.animation_loop_2 >= 4:
+                    if self.landed_count <= 3:
+                        self.animation_loop_2 = 1
+                        self.disembark()
+                        self.landed_count += 1
+                    else:
+                        self.image = self.animations[4]
+                        self.animation_loop_2 = 4
+        else:
+            now = pygame.time.get_ticks()
+            if self.once:
+                self.game.building_explosion_sound.set_volume(0.5)
+                self.game.building_explosion_sound.play(0)
+                self.game.enemy_ground.remove(self)
+                self.game.tanks_killed += 1
+                self.game.enemies.remove(self)
+                self.once = False
+            self.image = self.dead_animations[math.floor(self.animation_loop_1)]
+            self.animation_loop_1 += 0.1
+            if self.animation_loop_1 >= 5:
+                self.animation_loop_1 = 3
+
+    def disembark(self):
+        pass
+
+
+class LandingCraftFriendlySpawnPoint(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+
+        self.game = game
+        self._layer = GROUND_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.origin_x = x
+        self.y = y * TILESIZE
+        self.origin_y = y
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        image_to_load = pygame.image.load('img/empty.png')
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.blit(image_to_load, (0,0))
+        self.image.set_colorkey(WHITE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+        self.lv10 = False
+
+        self.spawn_timer = pygame.time.get_ticks()
+        self.spawned = 0
+
+    def update(self):
+        if self.spawned < 1:
+            now = pygame.time.get_ticks()
+            if now - self.spawn_timer >= 20000:     #   20sec
+                LandingCraftFriendly(self.game, self.rect.x/TILESIZE, self.rect.y/TILESIZE)
+                self.spawned += 1
+                self.spawn_timer = now
+            
+
+    def spawn(self):
+        now = pygame.time.get_ticks()
+        if now - self.spawn_timer >= 10000:     #   10sec
+            #   spawn sprite
+            self.spawn_timer = now
+
+
 #   TERRAIN AND BUILDING SPRITES
 
 class Clouds(pygame.sprite.Sprite):
@@ -3093,7 +3280,7 @@ class RadarBuilding(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
         self._layer = BUILDING_LAYER
-        self.groups = self.game.all_sprites, self.game.enemies
+        self.groups = self.game.all_sprites, self.game.enemies, self.game.buildings
         pygame.sprite.Sprite.__init__(self, self.groups)
 
         self.x = x * TILESIZE
@@ -3319,7 +3506,7 @@ class Barrels(pygame.sprite.Sprite):
 
         self.game = game
         self._layer = BUILDING_LAYER
-        self.groups = self.game.all_sprites, self.game.enemies
+        self.groups = self.game.all_sprites, self.game.enemies, self.game.buildings
         pygame.sprite.Sprite.__init__(self, self.groups)
 
         self.x = x * TILESIZE
@@ -3402,7 +3589,7 @@ class Watchtower(pygame.sprite.Sprite):
 
         self.game = game
         self._layer = BUILDING_LAYER
-        self.groups = self.game.all_sprites
+        self.groups = self.game.all_sprites, self.game.enemies, self.game.buildings
         pygame.sprite.Sprite.__init__(self, self.groups)
 
         self.x = x * TILESIZE
@@ -3419,12 +3606,19 @@ class Watchtower(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
+        self.health = 100
+
+    def update(self):
+
+        if self.health <= 0:
+            self.kill()
+
 
 class Hangar(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
         self._layer = BUILDING_LAYER
-        self.groups = self.game.all_sprites, self.game.enemies
+        self.groups = self.game.all_sprites, self.game.enemies, self.game.buildings
         pygame.sprite.Sprite.__init__(self, self.groups)
 
         self.x = x * TILESIZE
@@ -3741,7 +3935,7 @@ class ControlTower(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
         self._layer = BUILDING_LAYER
-        self.groups = self.game.all_sprites, self.game.enemies
+        self.groups = self.game.all_sprites, self.game.enemies, self.game.buildings
         pygame.sprite.Sprite.__init__(self, self.groups)
 
         self.x = x * TILESIZE
@@ -4817,4 +5011,5 @@ class TyphoonCS1SpawnPoint(pygame.sprite.Sprite):
         if now - self.spawn_timer >= 10000:     #   10sec
             #   spawn sprite
             self.spawn_timer = now
+
 

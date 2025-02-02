@@ -71,6 +71,7 @@ class Game:
         self.cloud_spritesheet = AlphaSpriteSheet('img/clouds_spritesheet.png')
         self.typhoon_spritesheet = SpriteSheet('img/typhoon_spritesheet.png')
         self.tank_fire_spritesheet = SpriteSheet('img/tank_fire_spritesheet.png')
+        self.landing_craft_spritesheet = SpriteSheet('img/landing_craft_spritesheet.png')
 
         #   fonts
         self.font = pygame.font.Font('jennifer.ttf', 26)
@@ -666,6 +667,8 @@ class Game:
                     TyphoonCS1SpawnPoint(self, j, i)
                 if col == 'D':
                     DeadTruck(self, j, i)
+                if col == 'L':
+                    LandingCraftFriendlySpawnPoint(self, j, i)
 
     def create_blocks_lv5(self):
         for i, row in enumerate(blocks_lv5):
@@ -692,6 +695,8 @@ class Game:
         self.enemy_ground = pygame.sprite.LayeredUpdates()
         self.enemy_air = pygame.sprite.LayeredUpdates()
         self.clouds = pygame.sprite.LayeredUpdates()
+        self.buildings = pygame.sprite.LayeredUpdates()
+        self.friendly_ground = pygame.sprite.LayeredUpdates()
 
         self.main_theme.play(-1)
         self.main_theme.set_volume(0.1)
@@ -806,6 +811,8 @@ class Game:
         self.enemy_ground = pygame.sprite.LayeredUpdates()
         self.enemy_air = pygame.sprite.LayeredUpdates()
         self.clouds = pygame.sprite.LayeredUpdates()
+        self.buildings = pygame.sprite.LayeredUpdates()
+        self.friendly_ground = pygame.sprite.LayeredUpdates()
 
         
         self.main_theme.play(-1)
@@ -923,6 +930,8 @@ class Game:
         self.enemy_ground = pygame.sprite.LayeredUpdates()
         self.enemy_air = pygame.sprite.LayeredUpdates()
         self.clouds = pygame.sprite.LayeredUpdates()
+        self.buildings = pygame.sprite.LayeredUpdates()
+        self.friendly_ground = pygame.sprite.LayeredUpdates()
 
 
         
@@ -1041,6 +1050,8 @@ class Game:
         self.enemy_ground = pygame.sprite.LayeredUpdates()
         self.enemy_air = pygame.sprite.LayeredUpdates()
         self.clouds = pygame.sprite.LayeredUpdates()
+        self.buildings = pygame.sprite.LayeredUpdates()
+        self.friendly_ground = pygame.sprite.LayeredUpdates()
 
         
         self.main_theme.play(-1)
@@ -1160,6 +1171,8 @@ class Game:
         self.enemy_ground = pygame.sprite.LayeredUpdates()
         self.enemy_air = pygame.sprite.LayeredUpdates()
         self.clouds = pygame.sprite.LayeredUpdates()
+        self.buildings = pygame.sprite.LayeredUpdates()
+        self.friendly_ground = pygame.sprite.LayeredUpdates()
         for sprite in self.clouds:
             sprite.kill()
 
@@ -2182,6 +2195,8 @@ class Game:
         self.enemy_air = pygame.sprite.LayeredUpdates()
         self.friendly_air = pygame.sprite.LayeredUpdates()
         self.clouds = pygame.sprite.LayeredUpdates()
+        self.buildings = pygame.sprite.LayeredUpdates()
+        self.friendly_ground = pygame.sprite.LayeredUpdates()
 
         self.main_theme.play(-1)
         self.main_theme.set_volume(0.2)

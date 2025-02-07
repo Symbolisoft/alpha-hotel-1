@@ -1,4 +1,5 @@
 import pygame
+import pygame.sprite
 from config import *
 import math
 import random
@@ -1263,7 +1264,7 @@ class TankTwoSpawnPoint(pygame.sprite.Sprite):
         self.spawned = 0
 
     def update(self):
-        if self.spawned < 6:
+        if self.spawned < 3:
             now = pygame.time.get_ticks()
             if now - self.spawn_timer >= 3000:     #   10sec
                 TankTwo(self.game, self.rect.x/TILESIZE, self.rect.y/TILESIZE)
@@ -2559,10 +2560,13 @@ class TankFire(pygame.sprite.Sprite):
     def collide(self):
         hits_buildings = pygame.sprite.spritecollide(self, self.game.buildings, False)
         hits_friendly = pygame.sprite.spritecollide(self, self.game.friendly_ground, False)
+        hits_enemy = pygame.sprite.spritecollide(self, self.game.enemy_ground, False)
         if hits_buildings:
             hits_buildings[0].health -= 0.3
         if hits_friendly:
             hits_friendly[0].health -= 1
+        if hits_enemy:
+            hits_enemy[0].health -= 1
 
 
 class TransportPlane(pygame.sprite.Sprite):
@@ -3039,7 +3043,7 @@ class LandingCraftFriendly(pygame.sprite.Sprite):
                 self.image = self.animations[math.floor(self.animation_loop_2)]
                 self.animation_loop_2 += 0.1
                 if self.animation_loop_2 >= 4:
-                    if self.landed_count <= 3:
+                    if self.landed_count <= 1:
                         self.animation_loop_2 = 1
                         self.disembark()
                         self.landed_count += 1
@@ -3062,7 +3066,7 @@ class LandingCraftFriendly(pygame.sprite.Sprite):
 
     def disembark(self):
         now = pygame.time.get_ticks()
-        if now - self.disembark_timer >= 800:
+        if now - self.disembark_timer >= 1800:
             FriendlyEngineers(self.game, (self.rect.x+self.width)/TILESIZE, self.rect.y/TILESIZE)
             self.disembark_timer = now
 
@@ -3168,7 +3172,7 @@ class FriendlyEngineers(pygame.sprite.Sprite):
         self.exp = 20
         self.living = True
         self.steps1 = 0
-        self.range1 = 60
+        self.range1 = 80
         self.steps2 = 0
         self.steps3 = 0
         self.range2 = random.randint(50, 120)
@@ -3292,7 +3296,8 @@ class FriendlyEngineers(pygame.sprite.Sprite):
                     self.animation_loop_2 = 3
 
     def build(self):
-        pass
+        FriendlyTurret(self.game, self.rect.x+self.width, self.rect.y)
+        #   self.kill()
 
     def collide_buldings(self, direction):
         if direction == 'x':
@@ -3342,6 +3347,221 @@ class FriendlyEngineers(pygame.sprite.Sprite):
                     if self.y_change < 0:
                         self.rect.y = hits[0].rect.bottom
 
+
+class FriendlyTurret(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = BUILDING_LAYER
+        self.groups = self.game.all_sprites, self.game.buildings
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        
+        self.x = x
+        self.y = y
+        self.width = TILESIZE*2
+        self.height = TILESIZE*2
+
+        self.facing = 'right'
+
+        self.animation_loop = 0
+        
+        self.animations = [
+            self.game.cannon_turret_spritesheet.get_sprite(0, 0, TILESIZE*2, TILESIZE*2),
+            self.game.cannon_turret_spritesheet.get_sprite(50, 0, TILESIZE*2, TILESIZE*2),
+            self.game.cannon_turret_spritesheet.get_sprite(0, 50, TILESIZE*2, TILESIZE*2),
+            self.game.cannon_turret_spritesheet.get_sprite(50, 50, TILESIZE*2, TILESIZE*2),
+            self.game.cannon_turret_spritesheet.get_sprite(0, 100, TILESIZE*2, TILESIZE*2),
+            self.game.cannon_turret_spritesheet.get_sprite(50, 100, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.dead_animations = [
+            self.game.vehicle_explosion_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(25, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(50, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(75, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(100, 0, TILESIZE, TILESIZE)
+        ]
+      
+        self.image = self.animations[0]
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.health = 2000
+        self.death_timer = pygame.time.get_ticks()
+        self.living = True
+        self.firing = False
+        self.firing_timer = pygame.time.get_ticks()
+
+        self.aoi = TurretAreaOfInfluence(self.game, self.rect.x/TILESIZE, self.rect.y/TILESIZE)
+
+        self.target = 0
+        self.once = True
+
+    def update(self):
+        now = pygame.time.get_ticks()
+        self.animate()
+
+        if self.health <= 0:
+            self.living = False
+
+        if self.aoi.target:
+            if now - self.firing_timer >= 1200:
+
+                self.fire()
+                self.firing_timer = now
+        
+
+    def animate(self):
+        if self.living:
+            if self.firing == False:
+                if self.aoi.target != 0:
+                    if self.aoi.target.rect.y - self.rect.y > 0:
+                        self.image = self.animations[4]
+                    if self.aoi.target.rect.y - self.rect.y < 0:
+                        self.image = self.animations[2]
+                    else:
+                        self.image = self.animations[0]
+                else:
+                    self.image = self.animations[0]
+            else:
+                if self.aoi.target != 0:
+                    if self.aoi.target.rect.y - self.rect.y > 0:
+                        self.image = self.animations[5]
+                    if self.aoi.target.rect.y - self.rect.y < 0:
+                        self.image = self.animations[3]
+                    else:
+                        self.image = self.animations[1]
+                else:
+                    self.image = self.animations[0]
+
+                self.game.tank_gun_sound.set_volume(0.1)
+                self.game.tank_gun_sound.play(0)
+                self.firing = False
+        else:
+            if self.once:
+                self.game.building_explosion_sound.set_volume(0.5)
+                self.game.building_explosion_sound.play(0)
+                self.game.buildings.remove(self)
+                self.once = False
+            self.image = self.dead_animations[math.floor(self.animation_loop)]
+            self.animation_loop += 1
+            if self.animation_loop >= 5:
+                self.animation_loop = 3
+
+    def fire(self):
+        if self.aoi.target:
+            self.target = self.aoi.target
+            self.firing = True
+            TurretRound(self.game, self.rect.x + self.width, self.rect.y + 9, self.target)
+            TurretRound(self.game, self.rect.x + self.width, self.rect.y + 13, self.target)
+
+        else:
+            self.target = 0
+
+           
+class TurretAreaOfInfluence(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+
+        self.game = game
+        self._layer = GROUND_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = (x-4) * TILESIZE
+        self.y = (y-4) * TILESIZE
+        self.width = TILESIZE*8
+        self.height = TILESIZE*8
+
+        image_to_load = pygame.image.load('img/area_of_influence.png')
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.blit(image_to_load, (0,0))
+        self.image.set_colorkey(WHITE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.once = True
+        self.target = 0
+
+    def update(self):
+        self.collide_targets()
+
+    def collide_targets(self):
+        hits = pygame.sprite.spritecollide(self, self.game.enemy_ground, False)
+        if hits:
+            self.target = hits[0]
+        else:
+            self.target = 0
+            
+
+class TurretRound(pygame.sprite.Sprite):
+    def __init__(self, game, x, y, target):
+        self.game = game
+        self._layer = NPC_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.target_x = target.rect.x
+        self.target_y = target.rect.y
+        self.x = x
+        self.y = y
+        self.width = 5
+        self.height = 5
+
+        image_to_load = pygame.image.load('img/single_shell.png')
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.blit(image_to_load, (0,0))
+        self.image.set_colorkey(WHITE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.range = 150
+        self.speed = 5
+        self.steps = 0
+
+    def update(self):
+        self.movement()
+        self.collide()
+
+    def movement(self):
+        if self.steps < self.range:
+            if self.target_x - self.rect.x > 0 and self.target_y - self.rect.y > 0:
+                self.rect.x += self.speed
+                self.steps += self.speed*2
+                self.rect.y += self.speed
+            elif self.target_x - self.rect.x > 0 and self.target_y - self.rect.y < 0:
+                self.rect.x += self.speed
+                self.steps += self.speed*2
+                self.rect.y -= self.speed
+            elif self.target_x - self.rect.x > 0:
+                self.rect.x += self.speed
+                self.steps += self.speed
+            elif self.target_y - self.rect.y > 0:
+                self.rect.y += self.speed
+                self.steps += self.speed
+            elif self.target_y - self.rect.y < 0:
+                self.rect.y -= self.speed
+                self.steps += self.speed
+        else:
+            self.kill()
+
+    def collide(self):
+        hits_enemies = pygame.sprite.spritecollide(self, self.game.enemy_ground, False)
+        hits_friendlies = pygame.sprite.spritecollide(self, self.game.friendly_ground, False)
+        hits_buildings = pygame.sprite.spritecollide(self, self.game.buildings, False)
+        if hits_enemies:
+            hits_enemies[0].health -= 10
+            self.kill()
+        if hits_friendlies:
+            hits_friendlies[0].health -= 10
+            self.kill()
+        if hits_buildings:
+            hits_buildings[0].health -= 10
+            self.kill()
 
 
 #   TERRAIN AND BUILDING SPRITES

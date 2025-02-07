@@ -73,6 +73,7 @@ class Game:
         self.tank_fire_spritesheet = SpriteSheet('img/tank_fire_spritesheet.png')
         self.landing_craft_spritesheet = SpriteSheet('img/landing_craft_spritesheet.png')
         self.engineer_truck_spritesheet = SpriteSheet('img/engineer_truck_spritesheet.png')
+        self.cannon_turret_spritesheet = SpriteSheet('img/cannon_turret_spritesheet.png')
 
         #   fonts
         self.font = pygame.font.Font('jennifer.ttf', 26)

@@ -20,9 +20,11 @@ class Game:
         if pygame.joystick.get_count() > 0:
             self.joystick = pygame.joystick.Joystick(0)
             self.joystick.init()
-            print(f"Joystick name: {self.joystick.get_name()}")
+            self.controller_input_string = f"Controller: {self.joystick.get_name()}"
+            print(self.controller_input_string)
         else:
-            print("No joystick detected.")
+            self.controller_input_string = "No Controller Available"
+            print(self.controller_input_string)
 
         #   sounds
         self.main_theme = pygame.mixer.Sound('snd/main-theme.wav')
@@ -74,6 +76,7 @@ class Game:
         self.landing_craft_spritesheet = SpriteSheet('img/landing_craft_spritesheet.png')
         self.engineer_truck_spritesheet = SpriteSheet('img/engineer_truck_spritesheet.png')
         self.cannon_turret_spritesheet = SpriteSheet('img/cannon_turret_spritesheet.png')
+        self.chinook_spritesheet = SpriteSheet('img/chinook_spritesheet.png')
 
         #   fonts
         self.font = pygame.font.Font('jennifer.ttf', 26)
@@ -106,6 +109,8 @@ class Game:
         self.text_timer = pygame.time.get_ticks()
         self.radar_animation_loop = 0
         self.score = 0
+
+        self.tanks_killed_lv5 = 0
 
         self.game_state = {
             'level' : 0,
@@ -671,6 +676,10 @@ class Game:
                     DeadTruck(self, j, i)
                 if col == 'L':
                     LandingCraftFriendlySpawnPoint(self, j, i)
+                if col == 'l':
+                    LandingCraftFriendlySpawnPoint2(self, j, i)
+                if col == 'C':
+                    ChinookSpawnPoint(self, j, i)
 
     def create_blocks_lv5(self):
         for i, row in enumerate(blocks_lv5):
@@ -1390,6 +1399,8 @@ class Game:
                     self.main_theme.stop()
                     self.helicopter_sound.stop()
                     self.new_lv5()
+            
+
 
 
         #   overlay items that needs to update variables
@@ -1669,8 +1680,8 @@ class Game:
         play_button = Button(10, WIN_HEIGHT-180, 100, 50, WHITE, BLACK, 'Play', 32)
         load_button = Button(10, WIN_HEIGHT-120, 100, 50, WHITE, BLACK, 'Load', 32)
         clear_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Clear', 32)
-        #   title = self.font.render('ALPHA-HOTEL-1', True, WHITE)
-        #   title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 350))
+        controller_text = self.font.render(self.controller_input_string, True, WHITE)
+        controller_text_rect = controller_text.get_rect(center=(WIN_WIDTH-250, WIN_HEIGHT-18))
         self.main_theme.play(-1)
         self.main_theme.set_volume(0.7)
         last = pygame.time.get_ticks()
@@ -1710,7 +1721,7 @@ class Game:
                     self.clear_saved()
 
             self.screen.blit(self.intro_bg, (0, 0))
-            #   self.screen.blit(title, title_rect)
+            self.screen.blit(controller_text, controller_text_rect)
             self.screen.blit(play_button.image, play_button.rect)
             self.screen.blit(load_button.image, load_button.rect)
             self.screen.blit(clear_button.image, clear_button.rect)

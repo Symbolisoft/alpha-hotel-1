@@ -2357,12 +2357,12 @@ class TankTwo(pygame.sprite.Sprite):
         self.steps1 = 0
         self.range1 = random.randint(100, 150)
         self.steps2 = 0
-        self.range2 = random.randint(1120, 1175)
+        self.range2 = random.randint(1050, 1100)
         self.steps3 = 0
         self.range3 = random.randint(100, 150)
         self.speed = 1
         self.steps4 = 0
-        self.range4 = random.randint(350, 400)
+        self.range4 = random.randint(300, 350)
 
         
         self.fire_timer = pygame.time.get_ticks()
@@ -2439,7 +2439,6 @@ class TankTwo(pygame.sprite.Sprite):
                 
             if self.facing == 'right':
                 self.image = self.right_animations[0]
-                
 
         else:
             now = pygame.time.get_ticks()
@@ -2447,7 +2446,7 @@ class TankTwo(pygame.sprite.Sprite):
                 self.game.building_explosion_sound.set_volume(0.5)
                 self.game.building_explosion_sound.play(0)
                 self.game.enemy_ground.remove(self)
-                self.game.tanks_killed += 1
+                self.game.tanks_killed_lv5 += 1
                 self.game.enemies.remove(self)
                 self.once = False
             self.image = self.dead_animations[math.floor(self.animation_loop_1)]
@@ -2991,11 +2990,14 @@ class LandingCraftFriendly(pygame.sprite.Sprite):
         self.living = True
         self.steps1 = 0
         self.range1 = 485
+        self.steps2 = 0
+        self.range2 = 485
         
 
         self.at_sea = True
         self.speed = 1
         self.landed_count = 0
+        self.done = False
 
         
         self.disembark_timer = pygame.time.get_ticks()
@@ -3027,13 +3029,20 @@ class LandingCraftFriendly(pygame.sprite.Sprite):
         #   weapon firing
 
     def movement(self):
-        
-        if self.steps1 < self.range1:
-            if self.living:
-                self.x_change += self.speed
-                self.steps1 += self.speed
+        if self.done == False:
+            if self.steps1 < self.range1:
+                if self.living:
+                    self.x_change += self.speed
+                    self.steps1 += self.speed
+            else:
+                self.at_sea = False
         else:
-            self.at_sea = False
+            if self.steps2 < self.range2:
+                if self.living:
+                    self.x_change -= self.speed
+                    self.steps2 += self.speed
+            else:
+                self.kill()
 
     def animate(self):
         if self.living:
@@ -3042,13 +3051,14 @@ class LandingCraftFriendly(pygame.sprite.Sprite):
             else:
                 self.image = self.animations[math.floor(self.animation_loop_2)]
                 self.animation_loop_2 += 0.1
-                if self.animation_loop_2 >= 4:
+                if self.animation_loop_2 >= 3:
                     if self.landed_count <= 1:
                         self.animation_loop_2 = 1
                         self.disembark()
                         self.landed_count += 1
                     else:
-                        self.image = self.animations[4]
+                        self.image = self.animations[0]
+                        self.done = True
                         self.animation_loop_2 = 4
         else:
             now = pygame.time.get_ticks()
@@ -3066,7 +3076,7 @@ class LandingCraftFriendly(pygame.sprite.Sprite):
 
     def disembark(self):
         now = pygame.time.get_ticks()
-        if now - self.disembark_timer >= 1800:
+        if now - self.disembark_timer >= 2200:
             FriendlyEngineers(self.game, (self.rect.x+self.width)/TILESIZE, self.rect.y/TILESIZE)
             self.disembark_timer = now
 
@@ -3106,6 +3116,196 @@ class LandingCraftFriendlySpawnPoint(pygame.sprite.Sprite):
                 LandingCraftFriendly(self.game, self.rect.x/TILESIZE, self.rect.y/TILESIZE)
                 self.spawned += 1
                 self.spawn_timer = now
+            
+
+    def spawn(self):
+        now = pygame.time.get_ticks()
+        if now - self.spawn_timer >= 10000:     #   10sec
+            #   spawn sprite
+            self.spawn_timer = now
+
+
+class LandingCraftFriendly2(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = NPC_LAYER
+        self.groups = self.game.all_sprites, self.game.friendly_ground
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.origin_x = self.x
+        self.origin_y = self.y
+        self.width = TILESIZE*2
+        self.height = TILESIZE
+
+        self.x_change = 0
+        self.y_change = 0
+
+        self.facing = 'up'
+        self.animation_loop_1 = 0
+        self.animation_loop_2 = 0
+
+        self.once = True
+
+        
+        self.animations = [
+            self.game.landing_craft_spritesheet.get_sprite(0, 0, TILESIZE*2, TILESIZE),
+            self.game.landing_craft_spritesheet.get_sprite(50, 0, TILESIZE*2, TILESIZE),
+            self.game.landing_craft_spritesheet.get_sprite(100, 0, TILESIZE*2, TILESIZE),
+            self.game.landing_craft_spritesheet.get_sprite(150, 0, TILESIZE*2, TILESIZE),
+            self.game.landing_craft_spritesheet.get_sprite(200, 0, TILESIZE*2, TILESIZE)
+        ]
+
+
+        self.dead_animations = [
+            self.game.vehicle_explosion_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(25, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(50, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(75, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(100, 0, TILESIZE, TILESIZE)
+        ]
+      
+        self.image = self.game.tank_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.health = 2000
+        self.death_timer = pygame.time.get_ticks()
+        
+        self.exp = 20
+        self.living = True
+        self.steps1 = 0
+        self.range1 = 485
+        self.steps2 = 0
+        self.range2 = 485
+        
+
+        self.at_sea = True
+        self.speed = 1
+        self.landed_count = 0
+        self.done = False
+
+        
+        self.disembark_timer = pygame.time.get_ticks()
+
+    def update(self):
+        #   call movement and animate functions.
+
+        
+        self.animate()
+        self.movement()
+
+        #   move and check collisions
+
+        self.rect.x += self.x_change
+        
+       
+        
+        self.rect.y += self.y_change
+        
+        
+        self.x_change = 0
+        self.y_change = 0
+
+        #   check health
+
+        if self.health <= 0:
+            self.living = False
+        
+        #   weapon firing
+
+    def movement(self):
+        if self.done == False:
+            if self.steps1 < self.range1:
+                if self.living:
+                    self.x_change += self.speed
+                    self.steps1 += self.speed
+            else:
+                self.at_sea = False
+        else:
+            if self.steps2 < self.range2:
+                if self.living:
+                    self.x_change -= self.speed
+                    self.steps2 += self.speed
+            else:
+                self.kill()
+
+    def animate(self):
+        if self.living:
+            if self.at_sea:
+                self.image = self.animations[0]
+            else:
+                self.image = self.animations[math.floor(self.animation_loop_2)]
+                self.animation_loop_2 += 0.1
+                if self.animation_loop_2 >= 3:
+                    if self.landed_count <= 1:
+                        self.animation_loop_2 = 1
+                        self.disembark()
+                        self.landed_count += 1
+                    else:
+                        self.image = self.animations[0]
+                        self.done = True
+                        self.animation_loop_2 = 4
+        else:
+            now = pygame.time.get_ticks()
+            if self.once:
+                self.game.building_explosion_sound.set_volume(0.5)
+                self.game.building_explosion_sound.play(0)
+                self.game.enemy_ground.remove(self)
+                self.game.tanks_killed += 1
+                self.game.enemies.remove(self)
+                self.once = False
+            self.image = self.dead_animations[math.floor(self.animation_loop_1)]
+            self.animation_loop_1 += 0.1
+            if self.animation_loop_1 >= 5:
+                self.animation_loop_1 = 3
+
+    def disembark(self):
+        now = pygame.time.get_ticks()
+        if now - self.disembark_timer >= 1800:
+            FriendlyEngineers2(self.game, (self.rect.x+self.width)/TILESIZE, self.rect.y/TILESIZE)
+            self.disembark_timer = now
+
+
+class LandingCraftFriendlySpawnPoint2(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+
+        self.game = game
+        self._layer = GROUND_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.origin_x = x
+        self.y = y * TILESIZE
+        self.origin_y = y
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        image_to_load = pygame.image.load('img/empty.png')
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.blit(image_to_load, (0,0))
+        self.image.set_colorkey(WHITE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+        self.lv10 = False
+
+        self.spawn_timer = pygame.time.get_ticks()
+        self.spawned = 0
+
+    def update(self):
+        if self.spawned < 1:
+            if self.game.tanks_killed_lv5 >= 6:
+                now = pygame.time.get_ticks()
+                if now - self.spawn_timer >= 20000:     #   20sec
+                    LandingCraftFriendly2(self.game, self.rect.x/TILESIZE, self.rect.y/TILESIZE)
+                    self.spawned += 1
+                    self.spawn_timer = now
             
 
     def spawn(self):
@@ -3175,10 +3375,10 @@ class FriendlyEngineers(pygame.sprite.Sprite):
         self.range1 = 80
         self.steps2 = 0
         self.steps3 = 0
-        self.range2 = random.randint(50, 120)
-        self.range3 = random.randint(80, 240)
+        self.range2 = 80
+        self.range3 = 120
         self.steps4 = 0
-        self.range4 = random.randint(100, 180)
+        self.range4 = 120
         
 
         self.at_sea = True
@@ -3264,6 +3464,7 @@ class FriendlyEngineers(pygame.sprite.Sprite):
                             self.image = self.animations[0]
                             self.build()
                             self.done = True
+                            self.kill()
             else:
                 now = pygame.time.get_ticks()
                 if self.once:
@@ -3297,6 +3498,239 @@ class FriendlyEngineers(pygame.sprite.Sprite):
 
     def build(self):
         FriendlyTurret(self.game, self.rect.x+self.width, self.rect.y)
+        #   self.kill()
+
+    def collide_buldings(self, direction):
+        if direction == 'x':
+            hits = pygame.sprite.spritecollide(self, self.game.buildings, False)
+            if hits:
+                if self.x_change > 0:
+                    self.rect.x = hits[0].rect.left - self.rect.width
+                    
+                    
+                if self.x_change < 0:
+                    self.rect.x = hits[0].rect.right
+                    
+                    
+
+        if direction == 'y':
+            hits = pygame.sprite.spritecollide(self, self.game.buildings, False)
+            if hits:
+                if self.y_change > 0:
+                    self.rect.y = hits[0].rect.top - self.rect.height
+                    
+                    
+                if self.y_change < 0:
+                    self.rect.y = hits[0].rect.bottom
+                   
+    def collide_vehicles(self, direction):
+        if direction == 'x':
+            hits = pygame.sprite.spritecollide(self, self.game.friendly_ground, False)
+            if hits:
+                if hits[0] != self:
+                    if self.x_change > 0:
+                        self.rect.x = hits[0].rect.left - self.rect.width
+                    
+                    
+                    if self.x_change < 0:
+                        self.rect.x = hits[0].rect.right
+                    
+                    
+
+        if direction == 'y':
+            hits = pygame.sprite.spritecollide(self, self.game.friendly_ground, False)
+            if hits:
+                if hits[0] != self:
+                    if self.y_change > 0:
+                        self.rect.y = hits[0].rect.top - self.rect.height
+                        
+                        
+                    if self.y_change < 0:
+                        self.rect.y = hits[0].rect.bottom
+
+
+class FriendlyEngineers2(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = NPC_LAYER
+        self.groups = self.game.all_sprites, self.game.friendly_ground
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.origin_x = self.x
+        self.origin_y = self.y
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        self.x_change = 0
+        self.y_change = 0
+
+        self.facing = 'right'
+        self.animation_loop_1 = 4
+        self.animation_loop_2 = 0
+
+        self.once = True
+
+        
+        self.animations = [
+            self.game.engineer_truck_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE),
+            self.game.engineer_truck_spritesheet.get_sprite(25, 0, TILESIZE, TILESIZE),
+            self.game.engineer_truck_spritesheet.get_sprite(50, 0, TILESIZE, TILESIZE),
+            self.game.engineer_truck_spritesheet.get_sprite(75, 0, TILESIZE, TILESIZE),
+            self.game.engineer_truck_spritesheet.get_sprite(0, 25, TILESIZE, TILESIZE),
+            self.game.engineer_truck_spritesheet.get_sprite(25, 25, TILESIZE, TILESIZE),
+            self.game.engineer_truck_spritesheet.get_sprite(50, 25, TILESIZE, TILESIZE)
+        ]
+
+
+        self.firing_animation = self.game.tank_spritesheet.get_sprite(50, 25, TILESIZE, TILESIZE)
+
+        self.dead_animations = [
+            self.game.vehicle_explosion_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(25, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(50, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(75, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(100, 0, TILESIZE, TILESIZE)
+        ]
+      
+        self.image = self.game.tank_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.health = 200
+        self.death_timer = pygame.time.get_ticks()
+        
+        self.exp = 20
+        self.living = True
+        self.steps1 = 0
+        self.range1 = 80
+        self.steps2 = 0
+        self.range2 = 100
+        self.steps3 = 0
+        self.range3 = 80 
+        self.steps4 = 0
+        self.range4 = 50     
+
+        self.at_sea = True
+        self.speed = 1
+
+        self.building = False
+        self.build_timer = pygame.time.get_ticks()
+        self.building_counter = 0
+        self.done = False
+        self.once2 = True
+
+    def update(self):
+        #   call movement and animate functions.
+
+        
+        self.animate()
+        self.movement()
+
+        #   move and check collisions
+
+        self.rect.x += self.x_change
+        self.collide_buldings('x')
+        self.collide_vehicles('x')
+       
+        
+        self.rect.y += self.y_change
+        self.collide_buldings('y')
+        self.collide_vehicles('y')
+        
+        
+        self.x_change = 0
+        self.y_change = 0
+
+        #   check health
+
+        if self.health <= 0:
+            self.living = False
+        
+        #   weapon firing
+
+    def movement(self):
+        if self.living:
+            if self.steps1 <= self.range1:
+                self.x_change += self.speed
+                self.steps1 += self.speed
+            else:
+                self.facing = 'up'
+                if self.steps2 <= self.range2:
+                    self.y_change -= self.speed
+                    self.steps2 += self.speed
+                else:
+                    self.facing = 'right'
+                    if self.steps3 <= self.range3:
+                        self.x_change += self.speed
+                        self.steps3 += self.speed
+                    else:
+                        self.facing = 'down'
+                        if self.steps4 <= self.range4:
+                            self.y_change += self.speed
+                            self.steps4 += self.speed
+                        else:
+                            self.building = True
+
+    def animate(self):
+        if self.done == False:
+            if self.living:
+                if self.building == False:
+                    if self.facing == 'up':
+                        self.image = self.animations[2]
+                    if self.facing == 'down':
+                        self.image = self.animations[3]
+                    if self.facing == 'left':
+                        self.image = self.animations[1]
+                    if self.facing == 'right':
+                        self.image = self.animations[0]
+                else:
+                    self.image = self.animations[math.floor(self.animation_loop_1)]
+                    self.animation_loop_1 += 0.3
+                    if self.animation_loop_1 >= 7:
+                        self.animation_loop_1 = 4
+                        self.building_counter += 1
+                        if self.building_counter >= 20:
+                            self.image = self.animations[0]
+                            self.build()
+                            self.done = True
+                            self.kill()
+            else:
+                now = pygame.time.get_ticks()
+                if self.once:
+                    self.game.building_explosion_sound.set_volume(0.5)
+                    self.game.building_explosion_sound.play(0)
+                    self.game.friendly_ground.remove(self)
+                    
+                    
+                    self.once = False
+                self.image = self.dead_animations[math.floor(self.animation_loop_2)]
+                self.animation_loop_2 += 0.1
+                if self.animation_loop_2 >= 5:
+                    self.animation_loop_2 = 3
+
+        else:
+            if self.living:
+                self.image = self.animations[0]
+            else:
+                now = pygame.time.get_ticks()
+                if self.once:
+                    self.game.building_explosion_sound.set_volume(0.5)
+                    self.game.building_explosion_sound.play(0)
+                    self.game.friendly_ground.remove(self)
+                    
+                    
+                    self.once = False
+                self.image = self.dead_animations[math.floor(self.animation_loop_2)]
+                self.animation_loop_2 += 0.1
+                if self.animation_loop_2 >= 5:
+                    self.animation_loop_2 = 3
+
+    def build(self):
+        HeliPad(self.game, (self.rect.x+self.width)/TILESIZE, self.rect.y/TILESIZE)
         #   self.kill()
 
     def collide_buldings(self, direction):
@@ -3445,7 +3879,7 @@ class FriendlyTurret(pygame.sprite.Sprite):
                 self.game.buildings.remove(self)
                 self.once = False
             self.image = self.dead_animations[math.floor(self.animation_loop)]
-            self.animation_loop += 1
+            self.animation_loop += 0.2
             if self.animation_loop >= 5:
                 self.animation_loop = 3
 
@@ -3458,6 +3892,18 @@ class FriendlyTurret(pygame.sprite.Sprite):
 
         else:
             self.target = 0
+
+    def collide(self):
+        hits_enemies = pygame.sprite.spritecollide(self, self.game.enemy_ground, False)
+        hits_buildings = pygame.sprite.spritecollide(self, self.game.buildings, False)
+        if hits_enemies:
+            hits_enemies[0].rect.x = self.rect.x + self.width
+        if hits_buildings:
+            if hits_buildings[0] != self:
+                if self.rect.y < hits_buildings[0].rect.y:
+                    self.rect.y = hits_buildings[0].rect.y - self.height
+                if self.rect.y > hits_buildings[0].rect.y:
+                    self.rect.y = hits_buildings[0].rect.y + hits_buildings[0].height
 
            
 class TurretAreaOfInfluence(pygame.sprite.Sprite):
@@ -3519,8 +3965,8 @@ class TurretRound(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
-        self.range = 150
-        self.speed = 5
+        self.range = 200
+        self.speed = 4
         self.steps = 0
 
     def update(self):
@@ -3531,21 +3977,17 @@ class TurretRound(pygame.sprite.Sprite):
         if self.steps < self.range:
             if self.target_x - self.rect.x > 0 and self.target_y - self.rect.y > 0:
                 self.rect.x += self.speed
-                self.steps += self.speed*2
+                self.steps += self.speed
                 self.rect.y += self.speed
             elif self.target_x - self.rect.x > 0 and self.target_y - self.rect.y < 0:
                 self.rect.x += self.speed
-                self.steps += self.speed*2
+                self.steps += self.speed
                 self.rect.y -= self.speed
             elif self.target_x - self.rect.x > 0:
                 self.rect.x += self.speed
                 self.steps += self.speed
-            elif self.target_y - self.rect.y > 0:
-                self.rect.y += self.speed
-                self.steps += self.speed
-            elif self.target_y - self.rect.y < 0:
-                self.rect.y -= self.speed
-                self.steps += self.speed
+            else:
+                self.kill()    
         else:
             self.kill()
 
@@ -3562,6 +4004,196 @@ class TurretRound(pygame.sprite.Sprite):
         if hits_buildings:
             hits_buildings[0].health -= 10
             self.kill()
+
+
+class Chinook(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = PLAYER_LAYER
+        self.groups = self.game.all_sprites, self.game.friendly_air
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.origin_x = self.x
+        self.origin_y = self.y
+        self.width = TILESIZE*4
+        self.height = TILESIZE*2
+
+        self.x_change = 0
+        self.y_change = 0
+
+        self.facing = 'right'
+        self.animation_loop_1 = 0
+        self.animation_loop_2 = 0
+
+        self.once = True
+
+        
+        self.right_animations = [
+            self.game.chinook_spritesheet.get_sprite(0, 0, TILESIZE*4, TILESIZE*2),
+            self.game.chinook_spritesheet.get_sprite(100, 0, TILESIZE*4, TILESIZE*2),
+            self.game.chinook_spritesheet.get_sprite(200, 0, TILESIZE*4, TILESIZE*2),
+            self.game.chinook_spritesheet.get_sprite(300, 0, TILESIZE*4, TILESIZE*2)
+        ]
+
+        self.left_animations = [
+            self.game.chinook_spritesheet.get_sprite(0, 50, TILESIZE*4, TILESIZE*2),
+            self.game.chinook_spritesheet.get_sprite(100, 50, TILESIZE*4, TILESIZE*2),
+            self.game.chinook_spritesheet.get_sprite(200, 50, TILESIZE*4, TILESIZE*2),
+            self.game.chinook_spritesheet.get_sprite(300, 50, TILESIZE*4, TILESIZE*2)
+        ]
+
+
+        self.dead_animations = [
+            self.game.vehicle_explosion_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(25, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(50, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(75, 0, TILESIZE, TILESIZE),
+            self.game.vehicle_explosion_spritesheet.get_sprite(100, 0, TILESIZE, TILESIZE)
+        ]
+      
+        self.image = self.game.chinook_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.health = 2000
+        self.death_timer = pygame.time.get_ticks()
+        
+        self.exp = 20
+        self.living = True
+        self.steps1 = 0
+        self.range1 = 670
+        self.steps2 = 0
+        self.range2 = 690
+        
+
+        self.at_sea = True
+        self.speed = 2
+        self.landed_count = 0
+        self.done = False
+
+        
+        self.disembark_timer = pygame.time.get_ticks()
+        self.disembark_count = 0
+
+    def update(self):
+        #   call movement and animate functions.
+
+        
+        self.animate()
+        self.movement()
+
+        #   move and check collisions
+
+        self.rect.x += self.x_change
+        
+       
+        
+        self.rect.y += self.y_change
+        
+        
+        self.x_change = 0
+        self.y_change = 0
+
+        #   check health
+
+        if self.health <= 0:
+            self.living = False
+        
+        #   weapon firing
+
+    def movement(self):
+        if self.living:
+            if self.steps1 < self.range1:
+                self.x_change += self.speed
+                self.steps1 += self.speed
+            else:
+                self.facing = 'left'
+                if self.disembark_count < 1:
+                    self.disembark()
+                    self.disembark_count += 1
+                else:
+                    if self.steps2 < self.range2:
+                        self.x_change -= self.speed
+                        self.steps2 += self.speed
+                    else:
+                        self.kill()
+
+    def animate(self):
+        if self.living:
+            if self.facing == 'right':            
+                self.image = self.right_animations[math.floor(self.animation_loop_2)]
+                self.animation_loop_2 += 0.2
+                if self.animation_loop_2 >= 4:
+                    self.animation_loop_2 = 0
+            if self.facing == 'left':            
+                self.image = self.left_animations[math.floor(self.animation_loop_1)]
+                self.animation_loop_1 += 0.2
+                if self.animation_loop_1 >= 4:
+                    self.animation_loop_1 = 0
+        else:
+            now = pygame.time.get_ticks()
+            if self.once:
+                self.game.building_explosion_sound.set_volume(0.5)
+                self.game.building_explosion_sound.play(0)
+                self.game.enemy_ground.remove(self)
+                self.game.tanks_killed += 1
+                self.game.enemies.remove(self)
+                self.once = False
+            self.image = self.dead_animations[math.floor(self.animation_loop_1)]
+            self.animation_loop_1 += 0.1
+            if self.animation_loop_1 >= 5:
+                self.animation_loop_1 = 3
+
+    def disembark(self):
+        print('Disembarked!')
+
+
+class ChinookSpawnPoint(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+
+        self.game = game
+        self._layer = GROUND_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.origin_x = x
+        self.y = y * TILESIZE
+        self.origin_y = y
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        image_to_load = pygame.image.load('img/empty.png')
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.blit(image_to_load, (0,0))
+        self.image.set_colorkey(WHITE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+        self.lv10 = False
+
+        self.spawn_timer = pygame.time.get_ticks()
+        self.spawned = 0
+
+    def update(self):
+        if self.spawned < 1:
+            now = pygame.time.get_ticks()
+            if now - self.spawn_timer >= 100000:     #   100sec
+                Chinook(self.game, self.rect.x/TILESIZE, self.rect.y/TILESIZE)
+                self.spawned += 1
+                self.spawn_timer = now
+            
+
+    def spawn(self):
+        now = pygame.time.get_ticks()
+        if now - self.spawn_timer >= 10000:     #   10sec
+            #   spawn sprite
+            self.spawn_timer = now
 
 
 #   TERRAIN AND BUILDING SPRITES
@@ -4628,7 +5260,7 @@ class ControlTower(pygame.sprite.Sprite):
 class HeliPad(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
         self.game = game
-        self._layer = GROUND_LAYER
+        self._layer = BUILDING_LAYER
         self.groups = self.game.all_sprites, self.game.helipads
         pygame.sprite.Sprite.__init__(self, self.groups)
 

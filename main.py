@@ -125,6 +125,8 @@ class Game:
         self.fire_flares = False
 
         self.button_timer = pygame.time.get_ticks()
+        self.lv5_helipad = False
+        self.lv5_runway = False
 
     #   file managment
     def save_game(self, filename='savegame.pkl'):
@@ -680,6 +682,8 @@ class Game:
                     LandingCraftFriendlySpawnPoint2(self, j, i)
                 if col == 'C':
                     ChinookSpawnPoint(self, j, i)
+                if col == 'c':
+                    ChinookSpawnPoint2(self, j, i)
 
     def create_blocks_lv5(self):
         for i, row in enumerate(blocks_lv5):

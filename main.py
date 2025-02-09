@@ -113,6 +113,7 @@ class Game:
         self.score = 0
 
         self.tanks_killed_lv5 = 0
+        self.sams_killed_lv5 = 0
 
         self.game_state = {
             'level' : 0,
@@ -129,6 +130,7 @@ class Game:
         self.button_timer = pygame.time.get_ticks()
         self.lv5_helipad = False
         self.lv5_runway = False
+        self.lv5_air_kills = 0
 
     #   file managment
     def save_game(self, filename='savegame.pkl'):
@@ -688,6 +690,8 @@ class Game:
                     ChinookSpawnPoint2(self, j, i)
                 if col == 'j':
                     EnemyJetSpawnPoint(self, j, i)
+                if col == 's':
+                    SAMTruckLevel5SpawnPoint(self, j, i)
 
     def create_blocks_lv5(self):
         for i, row in enumerate(blocks_lv5):
@@ -1295,7 +1299,7 @@ class Game:
 
         self.aircraft_killed = 0
         self.troops_landed = 0
-
+        print(self.level)
     #   event handling
     def events(self):
         for event in pygame.event.get():
@@ -1407,6 +1411,12 @@ class Game:
                     self.main_theme.stop()
                     self.helicopter_sound.stop()
                     self.new_lv5()
+            if self.sams_killed_lv5 >= 8:
+                for sprite in self.all_sprites:
+                    sprite.kill()
+                self.main_theme.stop()
+                self.helicopter_sound.stop()
+                self.mission_complete()
             
 
 

@@ -77,6 +77,8 @@ class Game:
         self.engineer_truck_spritesheet = SpriteSheet('img/engineer_truck_spritesheet.png')
         self.cannon_turret_spritesheet = SpriteSheet('img/cannon_turret_spritesheet.png')
         self.chinook_spritesheet = SpriteSheet('img/chinook_spritesheet.png')
+        self.engineer_squad_spritesheet = SpriteSheet('img/engineer_squad.png')
+        self.enemy_jet_spritesheet = SpriteSheet('img/enemy_jet_spritesheet.png')
 
         #   fonts
         self.font = pygame.font.Font('jennifer.ttf', 26)
@@ -594,8 +596,8 @@ class Game:
             for j, col in enumerate(row):
                 if col == 'S':
                     SAMTruck(self, j, i)
-                if col == 'I':
-                    Infantry(self, j, i)
+                if col == 'i':
+                    InfantryLevel5SpawnPoint(self, j, i)
                 if col == 'A':
                     SpAaG(self, j, i)
                 if col == 'T':
@@ -664,8 +666,8 @@ class Game:
             for j, col in enumerate(row):
                 if col == 'S':
                     SAMTruck(self, j, i)
-                if col == 'I':
-                    Infantry(self, j, i)
+                if col == 'i':
+                    InfantryLevel5SpawnPoint(self, j, i)
                 if col == 'A':
                     SpAaG(self, j, i)
                 if col == 'T':
@@ -684,6 +686,8 @@ class Game:
                     ChinookSpawnPoint(self, j, i)
                 if col == 'c':
                     ChinookSpawnPoint2(self, j, i)
+                if col == 'j':
+                    EnemyJetSpawnPoint(self, j, i)
 
     def create_blocks_lv5(self):
         for i, row in enumerate(blocks_lv5):

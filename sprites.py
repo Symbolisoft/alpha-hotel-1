@@ -2934,6 +2934,397 @@ class DeadTruck(pygame.sprite.Sprite):
             self.animation_loop_1 = 3
                 
 
+class InfantryLevel5(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = NPC_LAYER
+        self.groups = self.game.all_sprites, self.game.enemies
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        self.x_change = 0
+        self.y_change = 0
+
+        self.facing = 'left'
+        self.animation_loop_1 = 0
+        self.animation_loop_2 = 0
+
+        self.down_image = self.game.infantry_spritesheet.get_sprite(25, 0, TILESIZE, TILESIZE)
+
+        self.up_image = self.game.infantry_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE)
+
+        self.left_image = self.game.infantry_spritesheet.get_sprite(75, 0, TILESIZE, TILESIZE)
+
+        self.right_image = self.game.infantry_spritesheet.get_sprite(50, 0, TILESIZE, TILESIZE)
+
+        
+      
+        self.image = self.game.infantry_spritesheet.get_sprite(0, 0, TILESIZE, TILESIZE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.health = 25
+        self.death_timer = pygame.time.get_ticks()
+        
+        self.exp = 10
+        self.living = True
+
+        self.steps = 0
+        self.range = random.randint(1250, 1400)
+        self.speed = 1
+
+        
+        self.gun_timer = pygame.time.get_ticks()
+
+    def update(self):
+        #   call movement and animate functions.
+
+        self.movement()
+        self.animate()
+
+        #   move and check collisions
+
+        self.rect.x += self.x_change
+        self.collide_buldings('x')
+        self.collide_vehicles('x')
+        
+       
+        
+        self.rect.y += self.y_change
+        self.collide_buldings('y')
+        self.collide_vehicles('y')
+        
+        self.x_change = 0
+        self.y_change = 0
+
+        #   check health
+
+        if self.health <= 0:
+            self.living = False
+        
+        #   weapon firing
+
+    def movement(self):
+        if self.steps < self.range:
+            self.rect.x -= self.speed
+            self.steps += self.speed
+
+    def animate(self):
+        if self.living:
+
+            if self.facing == 'up':
+                self.image = self.up_image
+                   
+            if self.facing == 'down':
+                self.image = self.down_image
+                
+            if self.facing == 'left':
+                self.image = self.left_image
+                
+            if self.facing == 'right':
+                self.image = self.right_image
+
+        else:
+            self.kill()
+                
+    def collide_buldings(self, direction):
+        if direction == 'x':
+            hits = pygame.sprite.spritecollide(self, self.game.buildings, False)
+            if hits:
+                hits[0].health -= 0.5
+                try:
+                    hits[1].health -= 0.5
+                except:
+                    pass
+                self.rect.x = hits[0].rect.right-10
+                    
+                    
+
+        if direction == 'y':
+            pass
+                   
+    def collide_vehicles(self, direction):
+        if direction == 'x':
+            hits = pygame.sprite.spritecollide(self, self.game.enemies, False)
+            if hits:
+                if hits[0] != self:
+                    
+                    self.rect.x = hits[0].rect.right
+                    
+                    
+
+        if direction == 'y':
+            pass
+
+
+class InfantryLevel5SpawnPoint(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+
+        self.game = game
+        self._layer = GROUND_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.origin_x = x
+        self.y = y * TILESIZE
+        self.origin_y = y
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        image_to_load = pygame.image.load('img/empty.png')
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.blit(image_to_load, (0,0))
+        self.image.set_colorkey(WHITE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+        self.lv10 = False
+
+        self.spawn_timer = pygame.time.get_ticks()
+        self.spawned = 0
+
+    def update(self):
+        if self.spawned < 20:
+            now = pygame.time.get_ticks()
+            if self.game.tanks_killed_lv5 >= 3: 
+                if now - self.spawn_timer >= 5000:
+                    InfantryLevel5(self.game, self.rect.x/TILESIZE, self.rect.y/TILESIZE)
+                    self.spawned += 1
+                    self.spawn_timer = now
+
+
+class EnemyJet(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.game = game
+        self._layer = PLAYER_LAYER
+        self.groups = self.game.all_sprites, self.game.enemy_air
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.origin_x = self.x
+        self.origin_y = self.y
+        self.width = TILESIZE*2
+        self.height = TILESIZE*2
+
+        self.x_change = 0
+        self.y_change = 0
+
+        self.facing = 'up'
+        self.animation_loop_1 = 0
+        self.animation_loop_2 = 0
+
+        self.once = True
+
+        self.down_animations = [
+            self.game.enemy_jet_spritesheet.get_sprite(150, 0, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.up_animations = [
+            self.game.enemy_jet_spritesheet.get_sprite(100, 0, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.left_animations = [
+            self.game.enemy_jet_spritesheet.get_sprite(50, 0, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.right_animations = [
+            self.game.enemy_jet_spritesheet.get_sprite(0, 0, TILESIZE*2, TILESIZE*2)
+        ]
+
+        self.dead_animations = [
+            self.game.transport_spritesheet.get_sprite(200, 0, TILESIZE*2, TILESIZE*2),
+            self.game.transport_spritesheet.get_sprite(250, 0, TILESIZE*2, TILESIZE*2),
+            self.game.transport_spritesheet.get_sprite(300, 0, TILESIZE*2, TILESIZE*2),
+            self.game.transport_spritesheet.get_sprite(350, 0, TILESIZE*2, TILESIZE*2)
+        ]
+      
+        self.image = self.game.enemy_jet_spritesheet.get_sprite(0, 0, TILESIZE*2, TILESIZE*2)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        self.health = 100
+        self.death_timer = pygame.time.get_ticks()
+        self.missile_timer = pygame.time.get_ticks()
+        
+        self.exp = 20
+        self.living = True
+        self.steps1 = 0
+        self.range1 = random.randint(500, 550)
+        self.steps2 = 0
+        self.range2 = random.randint(800, 950)
+        self.steps3 = 0
+        self.range3 = random.randint(500, 650)
+        self.loop_steps1 = 0
+        self.loop_steps2 = 0
+        self.loop_count = 0
+        
+        self.loop_range = random.randint(500, 650)
+        self.speed = 3
+
+        
+        self.troop_timer = pygame.time.get_ticks()
+
+    def update(self):
+        #   call movement and animate functions.
+
+        self.movement()
+        self.animate()
+        self.collide_aoi()
+
+        #   move and check collisions
+
+        self.rect.x += self.x_change
+        
+       
+        
+        self.rect.y += self.y_change
+        
+        
+        self.x_change = 0
+        self.y_change = 0
+
+        #   check health
+
+        if self.health <= 0:
+            self.living = False
+        
+        #   weapon firing
+
+    def movement(self):
+        
+        if self.steps1 < self.range1:
+            if self.living:
+                self.y_change -= self.speed
+                self.steps1 += self.speed
+        else:
+            self.facing = 'left'
+            if self.steps2 < self.range2:
+                if self.living:
+                    self.x_change -= self.speed
+                    self.steps2 += self.speed
+            else:
+                self.facing = 'down'
+                if self.steps3 < self.range3:
+                    if self.living:
+                        self.y_change += self.speed
+                        self.steps3 += self.speed
+                else:
+                    self.facing = 'up'
+                    if self.loop_steps1 < self.loop_range:
+                        if self.living:
+                            self.y_change -= self.speed
+                            self.loop_steps1 += self.speed
+                    else:
+                        self.facing = 'down'
+                        if self.loop_steps2 < self.loop_range:
+                            
+                            if self.living:
+                                self.y_change += self.speed
+                                self.loop_steps2 += self.speed
+                        else:
+                            self.facing = 'up'
+                            self.loop_steps1 = 0
+                            self.loop_steps2 = 0
+                            self.loop_count += 1
+                    
+    def animate(self):
+        if self.living:
+
+            if self.facing == 'up':
+                self.image = self.up_animations[0]
+                
+                
+            if self.facing == 'down':
+                self.image = self.down_animations[0]
+                
+                
+            if self.facing == 'left':
+                self.image = self.left_animations[0]
+                
+                
+            if self.facing == 'right':
+                self.image = self.right_animations[0]
+                
+
+        else:
+            now = pygame.time.get_ticks()
+            if self.once:
+                self.game.building_explosion_sound.set_volume(0.5)
+                self.game.building_explosion_sound.play(0)
+                self.game.enemy_ground.remove(self)
+                
+                self.game.enemies.remove(self)
+                self.once = False
+            self.image = self.dead_animations[math.floor(self.animation_loop_1)]
+            self.animation_loop_1 += 0.1
+            if self.animation_loop_1 >= 4:
+                self.game.aircraft_killed += 1
+                self.kill()
+
+    def collide_aoi(self):
+        now = pygame.time.get_ticks()
+        if now - self.missile_timer >= 5000:
+            hits = pygame.sprite.spritecollide(self, self.game.aoi, False)
+            if hits:
+                self.fire_missile()
+                self.missile_timer = now
+
+    def fire_missile(self):
+        if self.alive:
+            self.game.missile_launch_sound.set_volume(0.3)
+            self.game.missile_launch_sound.play(0)
+            SAMMissile(self.game, self.rect.x, self.rect.y)
+
+
+class EnemyJetSpawnPoint(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+
+        self.game = game
+        self._layer = GROUND_LAYER
+        self.groups = self.game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+
+        self.x = x * TILESIZE
+        self.origin_x = x
+        self.y = y * TILESIZE
+        self.origin_y = y
+        self.width = TILESIZE
+        self.height = TILESIZE
+
+        image_to_load = pygame.image.load('img/empty.png')
+        self.image = pygame.Surface([self.width, self.height])
+        self.image.blit(image_to_load, (0,0))
+        self.image.set_colorkey(WHITE)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
+        self.lv10 = False
+
+        self.spawn_timer = pygame.time.get_ticks()
+        self.spawned = 0
+
+    def update(self):
+        if self.spawned < 2:
+            now = pygame.time.get_ticks()
+            if self.game.tanks_killed_lv5 >= 6: 
+                if now - self.spawn_timer >= 5000:
+                    EnemyJet(self.game, self.rect.x/TILESIZE, self.rect.y/TILESIZE)
+                    self.spawned += 1
+                    self.spawn_timer = now
+
+
 #   FRIENDLY RELATED SPRITES
 
 class LandingCraftFriendly(pygame.sprite.Sprite):
@@ -3376,9 +3767,9 @@ class FriendlyEngineers(pygame.sprite.Sprite):
         self.steps2 = 0
         self.steps3 = 0
         self.range2 = 80
-        self.range3 = 120
+        self.range3 = 130
         self.steps4 = 0
-        self.range4 = 120
+        self.range4 = 200
         
 
         self.at_sea = True
@@ -4692,29 +5083,95 @@ class EngineerSquad1(pygame.sprite.Sprite):
         self.width = TILESIZE
         self.height = TILESIZE
 
-        image_to_load = pygame.image.load('img/engineer_squad.png')
-        self.image = pygame.Surface([self.width, self.height])
-        self.image.blit(image_to_load, (0,0))
-        self.image.set_colorkey(WHITE)
+        
+        self.animations = [
+            self.game.engineer_squad_spritesheet.get_sprite(0, 0, self.width, self.height),
+            self.game.engineer_squad_spritesheet.get_sprite(25, 0, self.width, self.height),
+            self.game.engineer_squad_spritesheet.get_sprite(50, 0, self.width, self.height)
+        ]
+
+        self.image = self.animations[0]
+        
 
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
-        self.lv10 = False
 
         self.spawn_timer = pygame.time.get_ticks()
         self.spawned = 0
 
         self.health = 30
+        self.animation_loop = random.randint(0, 2)
+
+        self.steps1 = 0
+        self.range1 = 75
+        self.steps2 = 0
+        self.fences2 = 0
+        self.range2 = 24
+        self.steps3 = 0
+        self.fences3 = 0
+
+        self.speed = 1
+        self.tr_corner = False
+        self.br_corner = False
 
     def update(self):
         self.movement()
+        self.animate()
 
         if self.health <= 0:
             self.kill()
             
 
     def movement(self):
+        if self.steps1 < self.range1:
+            self.rect.y -= self.speed
+            self.steps1 += self.speed
+        else:
+            if self.steps2 <= self.range2:
+                self.rect.x += self.speed
+                self.steps2 += self.speed
+            else:
+                self.fences2 += 1
+                if self.fences2 <= 34:
+                    self.build_fence('x')
+                    self.steps2 = 0
+                else:
+                    if self.tr_corner == False:
+                        self.build_fence('tr')
+                        self.tr_corner = True
+                    else:
+                        if self.steps3 <= self.range2:
+                            self.rect.y += self.speed
+                            self.steps3 += self.speed
+                        else:
+                            self.fences3 += 1
+                            if self.fences3 <= 13:
+                                self.build_fence('y')
+                                self.steps3 = 0
+                            else:
+                                if self.br_corner == False:
+                                    self.build_fence('br')
+                                    self.kill()
+
+
+    def animate(self):
+        self.image = self.animations[math.floor(self.animation_loop)]
+        self.animation_loop += 0.2
+        if self.animation_loop >= 3:
+            self.animation_loop = 0
+
+    def build_fence(self, direction):
+        if direction == 'x':
+            FencingX(self.game, self.rect.x/TILESIZE, self.rect.y/TILESIZE)
+        if direction == 'tr':
+            FencingTopRight(self.game, (self.rect.x-(self.width-13))/TILESIZE, self.rect.y/TILESIZE)
+        if direction == 'br':
+            FencingBottomRight(self.game, (self.rect.x-(self.width-13))/TILESIZE, self.rect.y/TILESIZE)
+        if direction == 'y':
+            FencingY(self.game, (self.rect.x-(self.width-13))/TILESIZE, self.rect.y/TILESIZE)
+
+    def build_gate(self):
         pass
 
 
@@ -4733,30 +5190,97 @@ class EngineerSquad2(pygame.sprite.Sprite):
         self.width = TILESIZE
         self.height = TILESIZE
 
-        image_to_load = pygame.image.load('img/engineer_squad.png')
-        self.image = pygame.Surface([self.width, self.height])
-        self.image.blit(image_to_load, (0,0))
-        self.image.set_colorkey(WHITE)
+        
+        self.animations = [
+            self.game.engineer_squad_spritesheet.get_sprite(0, 0, self.width, self.height),
+            self.game.engineer_squad_spritesheet.get_sprite(25, 0, self.width, self.height),
+            self.game.engineer_squad_spritesheet.get_sprite(50, 0, self.width, self.height)
+        ]
+
+        self.image = self.animations[0]
+        
 
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
-        self.lv10 = False
 
         self.spawn_timer = pygame.time.get_ticks()
         self.spawned = 0
 
         self.health = 30
+        self.animation_loop = random.randint(0, 2)
+
+        self.steps1 = 0
+        self.range1 = 275
+        self.steps2 = 0
+        self.fences2 = 0
+        self.range2 = 24
+        self.steps3 = 0
+        self.fences3 = 0
+        self.range3 = 24
+
+        self.speed = 1
+        self.tr_corner = False
+        self.br_corner = False
+        self.gate = False
 
     def update(self):
         self.movement()
+        self.animate()
 
         if self.health <= 0:
             self.kill()
             
 
     def movement(self):
-        pass
+        if self.steps1 < self.range1:
+            self.rect.y += self.speed
+            self.steps1 += self.speed
+        else:
+            if self.steps2 <= self.range2:
+                self.rect.x += self.speed
+                self.steps2 += self.speed
+            else:
+                self.fences2 += 1
+                if self.fences2 <= 29:
+                    self.build_fence('x')
+                    self.steps2 = 0
+                else:
+                    if self.gate == False:
+                        self.build_gate()
+                        self.gate = True
+                        self.rect.x += 25
+                    else:
+                        if self.fences3 < 3:
+                            if self.steps3 <= self.range3:
+                                self.rect.x += self.speed
+                                self.steps3 += self.speed
+                            else:
+                                self.fences3 += 1
+                                self.build_fence('x')
+                                self.steps3 = 0
+                        else:
+                            self.kill()
+
+
+    def animate(self):
+        self.image = self.animations[math.floor(self.animation_loop)]
+        self.animation_loop += 0.2
+        if self.animation_loop >= 3:
+            self.animation_loop = 0
+
+    def build_fence(self, direction):
+        if direction == 'x':
+            FencingX(self.game, self.rect.x/TILESIZE, self.rect.y/TILESIZE)
+        if direction == 'tr':
+            FencingTopRight(self.game, (self.rect.x-(self.width-13))/TILESIZE, self.rect.y/TILESIZE)
+        if direction == 'br':
+            FencingBottomRight(self.game, (self.rect.x-(self.width-13))/TILESIZE, self.rect.y/TILESIZE)
+        if direction == 'y':
+            FencingY(self.game, (self.rect.x-(self.width-13))/TILESIZE, self.rect.y/TILESIZE)
+
+    def build_gate(self):
+        FencingGate(self.game, self.rect.x/TILESIZE, self.rect.y/TILESIZE)
 
 
 #   TERRAIN AND BUILDING SPRITES
@@ -5945,7 +6469,7 @@ class FencingX(pygame.sprite.Sprite):
 
         self.game = game
         self._layer = BUILDING_LAYER
-        self.groups = self.game.all_sprites
+        self.groups = self.game.all_sprites, self.game.buildings
         pygame.sprite.Sprite.__init__(self, self.groups)
 
         self.x = x * TILESIZE
@@ -5961,13 +6485,19 @@ class FencingX(pygame.sprite.Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
+        self.health = 200
+
+    def update(self):
+        if self.health <= 0:
+            self.kill()
+
 
 class FencingY(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
 
         self.game = game
         self._layer = BUILDING_LAYER
-        self.groups = self.game.all_sprites
+        self.groups = self.game.all_sprites, self.game.buildings
         pygame.sprite.Sprite.__init__(self, self.groups)
 
         self.x = x * TILESIZE
@@ -5982,6 +6512,12 @@ class FencingY(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = self.x
         self.rect.y = self.y
+
+        self.health = 200
+
+    def update(self):
+        if self.health <= 0:
+            self.kill()
 
 
 class FencingBottomRight(pygame.sprite.Sprite):

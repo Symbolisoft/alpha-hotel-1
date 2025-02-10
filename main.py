@@ -21,10 +21,10 @@ class Game:
             self.joystick = pygame.joystick.Joystick(0)
             self.joystick.init()
             self.controller_input_string = f"Controller: {self.joystick.get_name()}"
-            print(self.controller_input_string)
+            
         else:
             self.controller_input_string = "No Controller Available"
-            print(self.controller_input_string)
+            
 
         #   sounds
         self.main_theme = pygame.mixer.Sound('snd/main-theme.wav')
@@ -1411,7 +1411,7 @@ class Game:
                     self.main_theme.stop()
                     self.helicopter_sound.stop()
                     self.new_lv5()
-            if self.sams_killed_lv5 >= 8:
+            if self.sams_killed_lv5 >= 8 and self.tanks_killed_lv5 >= 12 and self.lv5_air_kills >= 6:
                 for sprite in self.all_sprites:
                     sprite.kill()
                 self.main_theme.stop()
@@ -1751,19 +1751,19 @@ class Game:
         self.level = 1
 
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
-        title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
+        title = self.font.render('ALPHA-HOTEL-1', True, WHITE)
         title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
-        brief_line_1 = self.font_mid.render('AH-1:  That\'s your callsign.  Welcome Lieutenant, here we have the briefing for our first mission;', True, BLACK)
+        brief_line_1 = self.font_mid.render('AH-1:  That\'s your callsign.  Welcome Lieutenant, here we have the briefing for our first mission;', True, WHITE)
         brief_line_1_rect = brief_line_1.get_rect(x=40, y=150)
-        brief_line_2 = self.font_mid.render('We have intelligence of enemy activity just SOUTH-EAST of our base,', True, BLACK)
+        brief_line_2 = self.font_mid.render('We have intelligence of enemy activity just SOUTH-EAST of our base,', True, WHITE)
         brief_line_2_rect = brief_line_2.get_rect(x=40, y=175)
-        brief_line_3 = self.font_mid.render('it seems they have taken over a RADAR installation.  We need to strike fast!', True, BLACK)
+        brief_line_3 = self.font_mid.render('it seems they have taken over a RADAR installation.  We need to strike fast!', True, WHITE)
         brief_line_3_rect = brief_line_3.get_rect(x=40, y=200)
-        brief_line_4 = self.font_mid.render('We need to neutralise the facility, you shoud only need your cannon for this mission.  Good luck Lieutenant!', True, BLACK)
+        brief_line_4 = self.font_mid.render('We need to neutralise the facility, you shoud only need your cannon for this mission.  Good luck Lieutenant!', True, WHITE)
         brief_line_4_rect = brief_line_4.get_rect(x=40, y=225)
-        brief_label_1 = self.font_mid.render('SPAAG - Self Propelled Anti-Aircraft Guns.', True, RED)
+        brief_label_1 = self.font_mid.render('SPAAG - Self Propelled Anti-Aircraft Guns.', True, ORANGE)
         brief_label_1_rect = brief_label_1.get_rect(x=170, y=310)
-        brief_label_2 = self.font_mid.render('Enemy Infantry - Mostly harmless.', True, RED)
+        brief_label_2 = self.font_mid.render('Enemy Infantry - Mostly harmless.', True, YELLOW)
         brief_label_2_rect = brief_label_2.get_rect(x=240, y=430)
         brief_label_3 = self.font_mid.render('MISSION OBJECTIVE - Destroy the installation.', True, RED)
         brief_label_3_rect = brief_label_3.get_rect(x=145, y=535)
@@ -1812,18 +1812,22 @@ class Game:
         self.level = 2
 
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
-        title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
+        title = self.font.render('ALPHA-HOTEL-1', True, WHITE)
         title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
         objective_image = pygame.image.load('img/mission_2_brief.png')
 
-        brief_line_1 = self.font_mid.render('Welcome back Lieutenant, here we have the briefing for our next mission;', True, BLACK)
+        brief_line_1 = self.font_mid.render('Welcome back Lieutenant, here we have the briefing for our next mission;', True, WHITE)
         brief_line_1_rect = brief_line_1.get_rect(x=40, y=150)
-        brief_line_2 = self.font_mid.render('The enemy has had word of our strike on the RADAR installation they occupied,  They have sent a', True, BLACK)
+        brief_line_2 = self.font_mid.render('The enemy has had word of our strike on the RADAR installation they occupied,  They have sent a', True, WHITE)
         brief_line_2_rect = brief_line_2.get_rect(x=40, y=175)
-        brief_line_3 = self.font_mid.render('group of tanks to wait nearby for a retaliatory strike.  We need you to neutralise the tanks.', True, BLACK)
+        brief_line_3 = self.font_mid.render('group of tanks to wait nearby for a retaliatory strike.  We need you to neutralise the tanks.', True, WHITE)
         brief_line_3_rect = brief_line_3.get_rect(x=40, y=200)
-        brief_line_4 = self.font_mid.render('Unguided rockets have been unlocked in the helipad menu.  Good luck Lieutenant!', True, BLACK)
+        brief_line_4 = self.font_mid.render('Unguided rockets have been unlocked in the helipad menu.  Good luck Lieutenant!', True, WHITE)
         brief_line_4_rect = brief_line_4.get_rect(x=40, y=225)
+        brief_label_1 = self.font_mid.render('Enemy Tanks - These have thick armour,', True, RED)
+        brief_label_1_rect = brief_label_1.get_rect(x=195, y=340)
+        brief_label_2 = self.font_mid.render('use ROCKETS for best effect.', True, RED)
+        brief_label_2_rect = brief_label_2.get_rect(x=195, y=360)
 
         last = pygame.time.get_ticks()
         self.main_theme.play(-1)
@@ -1857,6 +1861,8 @@ class Game:
             self.screen.blit(brief_line_2, brief_line_2_rect)
             self.screen.blit(brief_line_3, brief_line_3_rect)
             self.screen.blit(brief_line_4, brief_line_4_rect)
+            self.screen.blit(brief_label_1, brief_label_1_rect)
+            self.screen.blit(brief_label_2, brief_label_2_rect)
             self.screen.blit(play_button.image, play_button.rect)
             self.clock.tick(FPS)
             pygame.display.update()
@@ -1866,18 +1872,31 @@ class Game:
         self.level = 3
 
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
-        title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
+        title = self.font.render('ALPHA-HOTEL-1', True, WHITE)
         title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
         objective_image = pygame.image.load('img/mission_3_brief.png')
 
-        brief_line_1 = self.font_mid.render('Welcome back Lieutenant, here we have the briefing for our next mission;', True, BLACK)
+        brief_line_1 = self.font_mid.render('Welcome back Lieutenant, here we have the briefing for our next mission;', True, WHITE)
         brief_line_1_rect = brief_line_1.get_rect(x=40, y=150)
-        brief_line_2 = self.font_mid.render('Excellent work neutralising the tanks, we have intelligence of an enemy facility where they are', True, BLACK)
+        brief_line_2 = self.font_mid.render('Excellent work neutralising the tanks, we have intelligence of an enemy facility where they are', True, WHITE)
         brief_line_2_rect = brief_line_2.get_rect(x=40, y=175)
-        brief_line_3 = self.font_mid.render('bulding tanks, we want you to strike this facility.  There are enemy SAM trucks protecting the.', True, BLACK)
+        brief_line_3 = self.font_mid.render('bulding tanks, we want you to strike this facility.  There are enemy SAM trucks protecting the.', True, WHITE)
         brief_line_3_rect = brief_line_3.get_rect(x=40, y=200)
-        brief_line_4 = self.font_mid.render('facility so ATGMs have been unlocked in the helipad menu.  Good luck Lieutenant!', True, BLACK)
+        brief_line_4 = self.font_mid.render('facility so ATGMs have been unlocked in the helipad menu.  Good luck Lieutenant!', True, WHITE)
         brief_line_4_rect = brief_line_4.get_rect(x=40, y=225)
+        brief_label_1 = self.font_mid.render('This is your target lock indicator,', True, YELLOW)
+        brief_label_1_rect = brief_label_1.get_rect(x=178, y=300)
+        brief_label_2 = self.font_mid.render('guided weapons will use this for homing.', True, YELLOW)
+        brief_label_2_rect = brief_label_2.get_rect(x=178, y=320)
+        brief_label_3 = self.font_mid.render('Enemy SAM Trucks - Proceed with caution,', True, ORANGE)
+        brief_label_3_rect = brief_label_3.get_rect(x=158, y=370)
+        brief_label_4 = self.font_mid.render('guided weapons will thin these out.', True, ORANGE)
+        brief_label_4_rect = brief_label_4.get_rect(x=158, y=390)
+        brief_label_5 = self.font_mid.render('Enemy AAA Trucks.', True, BRIGHT_RED)
+        brief_label_5_rect = brief_label_5.get_rect(x=330, y=440)
+        brief_label_6 = self.font_mid.render('MISSION OBJECTIVE - DESTROY THE FACTORY.', True, RED)
+        brief_label_6_rect = brief_label_6.get_rect(x=100, y=480)
+
 
         last = pygame.time.get_ticks()
         self.main_theme.play(-1)
@@ -1911,6 +1930,12 @@ class Game:
             self.screen.blit(brief_line_2, brief_line_2_rect)
             self.screen.blit(brief_line_3, brief_line_3_rect)
             self.screen.blit(brief_line_4, brief_line_4_rect)
+            self.screen.blit(brief_label_1, brief_label_1_rect)
+            self.screen.blit(brief_label_2, brief_label_2_rect)
+            self.screen.blit(brief_label_3, brief_label_3_rect)
+            self.screen.blit(brief_label_4, brief_label_4_rect)
+            self.screen.blit(brief_label_5, brief_label_5_rect)
+            self.screen.blit(brief_label_6, brief_label_6_rect)
             self.screen.blit(play_button.image, play_button.rect)
             self.clock.tick(FPS)
             pygame.display.update()
@@ -1920,18 +1945,22 @@ class Game:
         self.level = 4
 
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
-        title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
+        title = self.font.render('ALPHA-HOTEL-1', True, WHITE)
         title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
         objective_image = pygame.image.load('img/mission_4_brief.png')
 
-        brief_line_1 = self.font_mid.render('Welcome back Lieutenant, here we have the briefing for our next mission;', True, BLACK)
+        brief_line_1 = self.font_mid.render('Welcome back Lieutenant, here we have the briefing for our next mission;', True, WHITE)
         brief_line_1_rect = brief_line_1.get_rect(x=40, y=150)
-        brief_line_2 = self.font_mid.render('The tank factory raid was a great success, well done Lieutenant!  However, intelligence reports', True, BLACK)
+        brief_line_2 = self.font_mid.render('The tank factory raid was a great success, well done Lieutenant!  However, intelligence reports', True, WHITE)
         brief_line_2_rect = brief_line_2.get_rect(x=40, y=175)
-        brief_line_3 = self.font_mid.render('enemy paratrooper transport approaching from the south.  We have no fast air at this base currently,', True, BLACK)
+        brief_line_3 = self.font_mid.render('enemy paratrooper transport approaching from the south.  We have no fast air at this base currently,', True, WHITE)
         brief_line_3_rect = brief_line_3.get_rect(x=40, y=200)
-        brief_line_4 = self.font_mid.render('so you\'re our only hope, AAMs have been unlocked in the weapons menu.  Good luck Lieutenant!', True, BLACK)
+        brief_line_4 = self.font_mid.render('so you\'re our only hope, AAMs have been unlocked in the weapons menu.  Good luck Lieutenant!', True, WHITE)
         brief_line_4_rect = brief_line_4.get_rect(x=40, y=225)
+        brief_label_1 = self.font_mid.render('MISSION OBJECTIVE - KILL THE TRANSPORTS', True, RED)
+        brief_label_1_rect = brief_label_1.get_rect(x=40, y=300)
+        brief_label_2 = self.font_mid.render('BEFORE THEY DROP THEIR PARATROOPERS.', True, RED)
+        brief_label_2_rect = brief_label_2.get_rect(x=40, y=320)
 
         last = pygame.time.get_ticks()
         self.main_theme.play(-1)
@@ -1965,6 +1994,8 @@ class Game:
             self.screen.blit(brief_line_2, brief_line_2_rect)
             self.screen.blit(brief_line_3, brief_line_3_rect)
             self.screen.blit(brief_line_4, brief_line_4_rect)
+            self.screen.blit(brief_label_1, brief_label_1_rect)
+            self.screen.blit(brief_label_2, brief_label_2_rect)
             self.screen.blit(play_button.image, play_button.rect)
             self.clock.tick(FPS)
             pygame.display.update()
@@ -1974,18 +2005,22 @@ class Game:
         self.level = 5
 
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
-        title = self.font.render('ALPHA-HOTEL-1', True, BLACK)
+        title = self.font.render('ALPHA-HOTEL-1', True, WHITE)
         title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
         objective_image = pygame.image.load('img/mission_5_brief.png')
 
-        brief_line_1 = self.font_mid.render('Update: -  You have been moved aboard a frigate and are headed to the hazim straight, there will be', True, BLACK)
+        brief_line_1 = self.font_mid.render('Update: -  You have been moved aboard a frigate and are headed to the hazim straight, there will be', True, WHITE)
         brief_line_1_rect = brief_line_1.get_rect(x=40, y=150)
-        brief_line_2 = self.font_mid.render('a strike group sent ahead to take out some key assets on our arrival.  Your job is to hold down the', True, BLACK)
+        brief_line_2 = self.font_mid.render('a strike group sent ahead to take out some key assets on our arrival.  Your job is to hold down the', True, WHITE)
         brief_line_2_rect = brief_line_2.get_rect(x=40, y=175)
-        brief_line_3 = self.font_mid.render('LZ long enough for our defensive perimeter to be set.  We\'re not sure what the enemy might throw at', True, BLACK)
+        brief_line_3 = self.font_mid.render('LZ long enough for our defensive perimeter to be set.  We\'re not sure what the enemy might throw at', True, WHITE)
         brief_line_3_rect = brief_line_3.get_rect(x=40, y=200)
-        brief_line_4 = self.font_mid.render('you out there so keep your eyes open and come back to the frigate to rearm and repair when necessary.', True, BLACK)
+        brief_line_4 = self.font_mid.render('you out there so keep your eyes open and come back to the frigate to rearm and repair when necessary.', True, WHITE)
         brief_line_4_rect = brief_line_4.get_rect(x=40, y=225)
+        brief_label_1 = self.font_mid.render('      ----    NO INTEL    ----    ', True, RED)
+        brief_label_1_rect = brief_label_1.get_rect(x=40, y=300)
+        brief_label_2 = self.font_mid.render('BE PREPARED FOR ANYTHING LIEUTENENT.', True, RED)
+        brief_label_2_rect = brief_label_2.get_rect(x=40, y=325)
 
         last = pygame.time.get_ticks()
         self.main_theme.play(-1)
@@ -2019,6 +2054,8 @@ class Game:
             self.screen.blit(brief_line_2, brief_line_2_rect)
             self.screen.blit(brief_line_3, brief_line_3_rect)
             self.screen.blit(brief_line_4, brief_line_4_rect)
+            self.screen.blit(brief_label_1, brief_label_1_rect)
+            self.screen.blit(brief_label_2, brief_label_2_rect)
             self.screen.blit(play_button.image, play_button.rect)
             self.clock.tick(FPS)
             pygame.display.update()
@@ -2026,35 +2063,35 @@ class Game:
     def weapon_menu(self):
         weapon_menu = True
 
-        title = self.font.render('Weapons Menu - Choose your weapons.', True, BLACK)
+        title = self.font.render('Weapons Menu - Choose your weapons.', True, WHITE)
         title_rect = title.get_rect(x=200, y=20)
 
-        rockets_text = self.font_mid.render('Unguided Rocket Pods:  Unguided rockets are perfect for destroying', True, BLACK)
+        rockets_text = self.font_mid.render('Unguided Rocket Pods:  Unguided rockets are perfect for destroying', True, WHITE)
         rockets_text_rect = rockets_text.get_rect(x=200, y=111)
-        rockets_text_2 = self.font_mid.render('buildings and convoys due to their quantity. - x 30  - Press 1 to arm.', True, BLACK)
+        rockets_text_2 = self.font_mid.render('buildings and convoys due to their quantity. - x 30  - Press 1 to arm.', True, WHITE)
         rockets_text_2_rect = rockets_text_2.get_rect(x=200, y=131)
         rockets_armed = self.font_mid.render('', True, RED)
         rockets_armed_rect = rockets_armed.get_rect(x=800, y=121)
         
 
-        atgm_text = self.font_mid.render('Anti Tank Guided Missiles (ATGM):  Missiles with infra-red tracking', True, BLACK)
+        atgm_text = self.font_mid.render('Anti Tank Guided Missiles (ATGM):  Missiles with infra-red tracking', True, WHITE)
         atgm_text_rect = atgm_text.get_rect(x=200, y=236)
-        atgm_text_2 = self.font_mid.render('and targeting, perfect for enemy ground vehicles. - x 4  - Press 2 to arm.', True, BLACK)
+        atgm_text_2 = self.font_mid.render('and targeting, perfect for enemy ground vehicles. - x 4  - Press 2 to arm.', True, WHITE)
         atgm_text_2_rect = atgm_text_2.get_rect(x=200, y=256)
         atgm_armed = self.font_mid.render('', True, RED)
         atgm_armed_rect = atgm_armed.get_rect(x=800, y=246)
         
 
-        aam_text = self.font_mid.render('Air to Air Missiles (AAM):  Highly manouverable missiles with infra-red', True, BLACK)
+        aam_text = self.font_mid.render('Air to Air Missiles (AAM):  Highly manouverable missiles with infra-red', True, WHITE)
         aam_text_rect = aam_text.get_rect(x=200, y=361)
-        aam_text_2 = self.font_mid.render('tracking and targeting, perfect for enemy aircraft. - x 4  - Press 3 to arm.', True, BLACK)
+        aam_text_2 = self.font_mid.render('tracking and targeting, perfect for enemy aircraft. - x 4  - Press 3 to arm.', True, WHITE)
         aam_text_2_rect = aam_text_2.get_rect(x=200, y=381)
         aam_armed = self.font_mid.render('', True, RED)
         aam_armed_rect = aam_armed.get_rect(x=800, y=371)
         
 
 
-        exit_txt = self.font.render('Press B to exit.', True, BLACK)
+        exit_txt = self.font.render('Press B to exit.', True, WHITE)
         exit_txt_rect = exit_txt.get_rect(x=WIN_WIDTH-200, y=WIN_HEIGHT-50)
 
         
@@ -2151,25 +2188,25 @@ class Game:
     def controls_menu(self):
         controls_menu = True
 
-        title = self.font.render('Controls.', True, BLACK)
+        title = self.font.render('Controls.', True, WHITE)
         title_rect = title.get_rect(center=(WIN_WIDTH/2, 50))
 
-        rockets_text = self.font.render('Movement:-', True, BLACK)
+        rockets_text = self.font.render('Movement:-', True, WHITE)
         rockets_text_rect = rockets_text.get_rect(x=50, y=100)
-        rockets_text_2 = self.font_mid.render('Use W,A,S,D, \'left stick\' or arrow keys to move.', True, BLACK)
+        rockets_text_2 = self.font_mid.render('Use W,A,S,D, \'left stick\' or arrow keys to move.', True, WHITE)
         rockets_text_2_rect = rockets_text_2.get_rect(x=50, y=131)
 
-        atgm_text = self.font.render('Flares:-', True, BLACK)
+        atgm_text = self.font.render('Flares:-', True, WHITE)
         atgm_text_rect = atgm_text.get_rect(x=50, y=225)
-        atgm_text_2 = self.font_mid.render('controller \'Y\' of key \'F\' for flares, to counter SAM threats.', True, BLACK)
+        atgm_text_2 = self.font_mid.render('controller \'Y\' of key \'F\' for flares, to counter SAM threats.', True, WHITE)
         atgm_text_2_rect = atgm_text_2.get_rect(x=50, y=256)
 
-        aam_text = self.font.render('Weapons:-', True, BLACK)
+        aam_text = self.font.render('Weapons:-', True, WHITE)
         aam_text_rect = aam_text.get_rect(x=50, y=350)
-        aam_text_2 = self.font_mid.render('\'SPACE\' or controller \'A\' - Cannon, \'H\' or controller \'B\' - Unguided Rockets, \'G\' or controller \'X\' - Guided Missile', True, BLACK)
+        aam_text_2 = self.font_mid.render('\'SPACE\' or controller \'A\' - Cannon, \'H\' or controller \'B\' - Unguided Rockets, \'G\' or controller \'X\' - Guided Missile', True, WHITE)
         aam_text_2_rect = aam_text_2.get_rect(x=50, y=381)
 
-        exit_txt = self.font_mid.render('Press B to exit.', True, BLACK)
+        exit_txt = self.font.render('Press B to exit.', True, WHITE)
         exit_txt_rect = exit_txt.get_rect(x=WIN_WIDTH-200, y=WIN_HEIGHT-50)
 
         while controls_menu:

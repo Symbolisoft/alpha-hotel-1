@@ -1,6 +1,8 @@
 import pickle
 import pygame
 import sys
+
+import pygame.surface
 from sprites import *
 from config import *
 import math
@@ -21,10 +23,8 @@ class Game:
             self.joystick = pygame.joystick.Joystick(0)
             self.joystick.init()
             self.controller_input_string = f"Controller: {self.joystick.get_name()}"
-            
         else:
             self.controller_input_string = "No Controller Available"
-            
 
         #   sounds
         self.main_theme = pygame.mixer.Sound('snd/main-theme.wav')
@@ -37,8 +37,12 @@ class Game:
         self.jet_flyby_sound = pygame.mixer.Sound('snd/jet-plane-flyby.wav')
         self.jet_loop_30s = pygame.mixer.Sound('snd/jet-loop-30s.wav')
         self.tank_gun_sound = pygame.mixer.Sound('snd/gun-shot.wav')
-
-        
+        self.grey_knight_sound = pygame.mixer.Sound('snd/grey-knight.wav')
+        self.briefing_1_sound = pygame.mixer.Sound('snd/briefing-1.wav')
+        self.briefing_2_sound = pygame.mixer.Sound('snd/briefing-2.wav')
+        self.briefing_3_sound = pygame.mixer.Sound('snd/briefing-3.wav')
+        self.briefing_4_sound = pygame.mixer.Sound('snd/briefing-4.wav')
+        self.briefing_5_sound = pygame.mixer.Sound('snd/briefing-5.wav')
 
         #   spritesheets
         self.character_spritesheet = SpriteSheet('img/playerspritesheet.png')
@@ -95,7 +99,10 @@ class Game:
         
         
         pygame.display.set_caption('ALPHA-HOTEL-1')
-        pygame.display.set_icon(self.character_spritesheet.get_sprite(50, 300, TILESIZE*2, TILESIZE*2))
+        image_to_load = pygame.image.load('img/icon.png')
+        self.icon = pygame.Surface([32, 32])
+        self.icon.blit(image_to_load, (0,0))
+        pygame.display.set_icon(self.icon)
         
 
         self.intro_bg = pygame.image.load('img/game_over_bg.jpg')
@@ -1770,7 +1777,9 @@ class Game:
         objective_image = pygame.image.load('img/mission_1_brief.png')
         last = pygame.time.get_ticks()
         
-        self.main_theme.set_volume(0.7)
+        self.main_theme.set_volume(0.3)
+        self.briefing_1_sound.set_volume(1.5)
+        self.briefing_1_sound.play()
 
         while scene_one:
             for event in pygame.event.get():
@@ -1831,7 +1840,9 @@ class Game:
 
         last = pygame.time.get_ticks()
         self.main_theme.play(-1)
-        self.main_theme.set_volume(0.7)
+        self.main_theme.set_volume(0.3)
+        self.briefing_2_sound.set_volume(1.5)
+        self.briefing_2_sound.play()
 
         while scene_two:
             for event in pygame.event.get():
@@ -1900,7 +1911,9 @@ class Game:
 
         last = pygame.time.get_ticks()
         self.main_theme.play(-1)
-        self.main_theme.set_volume(0.7)
+        self.main_theme.set_volume(0.3)
+        self.briefing_3_sound.set_volume(1.5)
+        self.briefing_3_sound.play()
 
         while scene_three:
             for event in pygame.event.get():
@@ -1964,7 +1977,9 @@ class Game:
 
         last = pygame.time.get_ticks()
         self.main_theme.play(-1)
-        self.main_theme.set_volume(0.7)
+        self.main_theme.set_volume(0.3)
+        self.briefing_4_sound.set_volume(1.5)
+        self.briefing_4_sound.play()
 
         while scene_four:
             for event in pygame.event.get():
@@ -2024,7 +2039,9 @@ class Game:
 
         last = pygame.time.get_ticks()
         self.main_theme.play(-1)
-        self.main_theme.set_volume(0.7)
+        self.main_theme.set_volume(0.3)
+        self.briefing_5_sound.set_volume(1.5)
+        self.briefing_5_sound.play()
 
         while scene_five:
             for event in pygame.event.get():

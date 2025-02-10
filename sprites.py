@@ -7464,6 +7464,7 @@ class TyhpoonCS1(pygame.sprite.Sprite):
         self.range1 = random.randint(2600, 2650)
         self.steps2 = 0
         self.range2 = random.randint(500, 550)
+        self.once4 = False
         
         
         
@@ -7499,6 +7500,11 @@ class TyhpoonCS1(pygame.sprite.Sprite):
         #   weapon firing
 
     def movement(self):
+        if self.steps1 >= 2000:
+            if self.once4 == False:
+                self.game.grey_knight_sound.set_volume(0.5)
+                self.game.grey_knight_sound.play()
+                self.once4 = True
         
         if self.steps1 < self.range1:
             if self.once_2:

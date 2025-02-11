@@ -1721,6 +1721,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.main_theme.stop()
                     intro = False
+                    self.playing = False
                     self.running = False
                     
 
@@ -1791,6 +1792,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.main_theme.stop()
                     scene_one = False
+                    self.playing = False
                     self.running = False
                     pygame.quit()
                     sys.exit()
@@ -1854,6 +1856,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.main_theme.stop()
                     scene_two = False
+                    self.playing = False
                     self.running = False
                     pygame.quit()
                     sys.exit()
@@ -1925,6 +1928,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.main_theme.stop()
                     scene_three = False
+                    self.playing = False
                     self.running = False
                     pygame.quit()
                     sys.exit()
@@ -1991,6 +1995,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.main_theme.stop()
                     scene_four = False
+                    self.playing = False
                     self.running = False
                     pygame.quit()
                     sys.exit()
@@ -2053,6 +2058,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.main_theme.stop()
                     scene_five = False
+                    self.playing = False
                     self.running = False
                     pygame.quit()
                     sys.exit()
@@ -2112,6 +2118,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.main_theme.stop()
                     scene_six = False
+                    self.playing = False
                     self.running = False
                     pygame.quit()
                     sys.exit()

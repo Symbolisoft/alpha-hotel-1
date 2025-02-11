@@ -1738,9 +1738,10 @@ class Game:
                 now = pygame.time.get_ticks()
                 if now - last >= 500:
                     try:
+                        intro = False
                         self.load_game()
                         self.main_theme.stop()
-                        intro = False
+                        
 
                     except:
                         pass
@@ -1751,13 +1752,16 @@ class Game:
                 if now - last >= 500:
                     self.clear_saved()
 
-            self.screen.blit(self.intro_bg, (0, 0))
-            self.screen.blit(controller_text, controller_text_rect)
-            self.screen.blit(play_button.image, play_button.rect)
-            self.screen.blit(load_button.image, load_button.rect)
-            self.screen.blit(clear_button.image, clear_button.rect)
-            self.clock.tick(FPS)
-            pygame.display.update()
+            try:
+                self.screen.blit(self.intro_bg, (0, 0))
+                self.screen.blit(controller_text, controller_text_rect)
+                self.screen.blit(play_button.image, play_button.rect)
+                self.screen.blit(load_button.image, load_button.rect)
+                self.screen.blit(clear_button.image, clear_button.rect)
+                self.clock.tick(FPS)
+                pygame.display.update()
+            except:
+                pass
 
     def scene_one(self):
         scene_one = True

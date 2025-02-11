@@ -24,7 +24,7 @@ class Game:
             self.joystick.init()
             self.controller_input_string = f"Controller: {self.joystick.get_name()}"
         else:
-            self.controller_input_string = "No Controller Available"
+            self.controller_input_string = "No Controller Detected"
 
         #   sounds
         self.main_theme = pygame.mixer.Sound('snd/main-theme.wav')
@@ -98,7 +98,7 @@ class Game:
         
         
         
-        pygame.display.set_caption('ALPHA-HOTEL-1')
+        pygame.display.set_caption('ALPHA-HOTEL-1 -Demo')
         image_to_load = pygame.image.load('img/icon.png')
         self.icon = pygame.Surface([32, 32])
         self.icon.blit(image_to_load, (0,0))
@@ -1573,6 +1573,9 @@ class Game:
                 elif self.level == 4:
                     self.new_lv4()
                     self.main()
+                elif self.level == 5:
+                    self.cut_scene_one()
+                    self.main()
 
             self.screen.blit(self.game_over_bg, (0, 0))
             self.screen.blit(text, text_rect)
@@ -1680,6 +1683,8 @@ class Game:
                     self.scene_five()
                 elif self.level == 6:
                     self.main_theme.stop()
+                    mission_completed = False
+                    self.scene_six()
 
             if save_button.is_pressed(mouse_pos, mouse_pressed):
                 self.save_game()
@@ -1758,7 +1763,7 @@ class Game:
         self.level = 1
 
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
-        title = self.font.render('ALPHA-HOTEL-1', True, WHITE)
+        title = self.font.render('ALPHA-HOTEL-1 -Demo', True, WHITE)
         title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
         brief_line_1 = self.font_mid.render('AH-1:  That\'s your callsign.  Welcome Lieutenant, here we have the briefing for our first mission;', True, WHITE)
         brief_line_1_rect = brief_line_1.get_rect(x=40, y=150)
@@ -1821,7 +1826,7 @@ class Game:
         self.level = 2
 
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
-        title = self.font.render('ALPHA-HOTEL-1', True, WHITE)
+        title = self.font.render('ALPHA-HOTEL-1 -Demo', True, WHITE)
         title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
         objective_image = pygame.image.load('img/mission_2_brief.png')
 
@@ -1883,7 +1888,7 @@ class Game:
         self.level = 3
 
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
-        title = self.font.render('ALPHA-HOTEL-1', True, WHITE)
+        title = self.font.render('ALPHA-HOTEL-1 -Demo', True, WHITE)
         title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
         objective_image = pygame.image.load('img/mission_3_brief.png')
 
@@ -1958,7 +1963,7 @@ class Game:
         self.level = 4
 
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
-        title = self.font.render('ALPHA-HOTEL-1', True, WHITE)
+        title = self.font.render('ALPHA-HOTEL-1 -Demo', True, WHITE)
         title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
         objective_image = pygame.image.load('img/mission_4_brief.png')
 
@@ -2020,7 +2025,7 @@ class Game:
         self.level = 5
 
         play_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Next', 32)
-        title = self.font.render('ALPHA-HOTEL-1', True, WHITE)
+        title = self.font.render('ALPHA-HOTEL-1 -Demo', True, WHITE)
         title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
         objective_image = pygame.image.load('img/mission_5_brief.png')
 
@@ -2074,6 +2079,59 @@ class Game:
             self.screen.blit(brief_label_1, brief_label_1_rect)
             self.screen.blit(brief_label_2, brief_label_2_rect)
             self.screen.blit(play_button.image, play_button.rect)
+            self.clock.tick(FPS)
+            pygame.display.update()
+
+    def scene_six(self):
+        scene_six = True
+        self.level = 5
+
+        
+        title = self.font.render('ALPHA-HOTEL-1 -Demo', True, WHITE)
+        title_rect = title.get_rect(center=(WIN_WIDTH/2 -10, 50))
+        
+
+        brief_line_1 = self.font_mid.render('                                            ----   THANK YOU FOR PLAYING   ----', True, WHITE)
+        brief_line_1_rect = brief_line_1.get_rect(x=40, y=150)
+        brief_line_2 = self.font_mid.render('Alpha-Hotel-1 -Demo is an independent game by a solo developer/artist/musician, I am looking to expand', True, WHITE)
+        brief_line_2_rect = brief_line_2.get_rect(x=40, y=175)
+        brief_line_3 = self.font_mid.render('to a full game, and would like to engage with you to make the full game the best it can possibly be.', True, WHITE)
+        brief_line_3_rect = brief_line_3.get_rect(x=40, y=200)
+        brief_line_4 = self.font_mid.render('For feedback, or if you would like to get involved in development, email me at: brainofbob@outlook.com.', True, WHITE)
+        brief_line_4_rect = brief_line_4.get_rect(x=40, y=225)
+        brief_line_5 = self.font_mid.render('You will need to be proficient in Python 3.12+, Pygame, Data Serialisation and Decoding, and OOP.', True, WHITE)
+        brief_line_5_rect = brief_line_5.get_rect(x=40, y=250)
+
+        last = pygame.time.get_ticks()
+        self.main_theme.play(-1)
+        self.main_theme.set_volume(0.3)
+        
+
+        while scene_six:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.main_theme.stop()
+                    scene_six = False
+                    self.running = False
+                    pygame.quit()
+                    sys.exit()
+                    
+
+            mouse_pos = pygame.mouse.get_pos()
+            mouse_pressed = pygame.mouse.get_pressed()
+
+            
+                
+
+            self.screen.blit(self.menu_bg, (0, 0))
+            
+            self.screen.blit(title, title_rect)
+            self.screen.blit(brief_line_1, brief_line_1_rect)
+            self.screen.blit(brief_line_2, brief_line_2_rect)
+            self.screen.blit(brief_line_3, brief_line_3_rect)
+            self.screen.blit(brief_line_4, brief_line_4_rect)
+            self.screen.blit(brief_line_5, brief_line_5_rect)
+            
             self.clock.tick(FPS)
             pygame.display.update()
 

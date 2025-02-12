@@ -179,10 +179,7 @@ class Game:
                 self.level = 1
                 self.scene_one()
 
-    def clear_saved(self, filename='savegame.pkl'):
-        with open(filename, 'wb') as file:
-            pickle.dump({}, file)
-
+    
     #   tilemapping
     def create_ground_map_lv1(self):
         for i, row in enumerate(ground_map_lv1):
@@ -1715,9 +1712,9 @@ class Game:
         intro = True
         
 
-        play_button = Button(10, WIN_HEIGHT-180, 100, 50, WHITE, BLACK, 'Play', 32)
-        load_button = Button(10, WIN_HEIGHT-120, 100, 50, WHITE, BLACK, 'Load', 32)
-        clear_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Clear', 32)
+        play_button = Button(10, WIN_HEIGHT-120, 100, 50, WHITE, BLACK, 'Play', 32)
+        load_button = Button(10, WIN_HEIGHT-60, 100, 50, WHITE, BLACK, 'Load', 32)
+        
         controller_text = self.font.render(self.controller_input_string, True, WHITE)
         controller_text_rect = controller_text.get_rect(center=(WIN_WIDTH-250, WIN_HEIGHT-18))
         self.main_theme.play(-1)
@@ -1755,17 +1752,14 @@ class Game:
                         pass
                     
 
-            if clear_button.is_pressed(mouse_pos, mouse_pressed):
-                now = pygame.time.get_ticks()
-                if now - last >= 500:
-                    self.clear_saved()
+            
 
             try:
                 self.screen.blit(self.intro_bg, (0, 0))
                 self.screen.blit(controller_text, controller_text_rect)
                 self.screen.blit(play_button.image, play_button.rect)
                 self.screen.blit(load_button.image, load_button.rect)
-                self.screen.blit(clear_button.image, clear_button.rect)
+                
                 self.clock.tick(FPS)
                 pygame.display.update()
             except:

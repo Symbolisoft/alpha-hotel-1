@@ -18,10 +18,19 @@ class Game:
         pygame.mixer.init()
         pygame.joystick.init()
         self.root = tkinter.Tk()
+        
         self.root.withdraw()
         self.clock = pygame.time.Clock()
         self.running = True
         self.playing = False
+
+        pygame.display.set_caption('ALPHA-HOTEL-1 -Demo')
+        image_to_load = pygame.image.load('img/icon.png')
+        self.icon = pygame.Surface([32, 32])
+        self.icon.blit(image_to_load, (0,0))
+        pygame.display.set_icon(self.icon)
+
+        self.root.iconphoto = pygame.image.load('img/icon.png')
 
 
         if pygame.joystick.get_count() > 0:
@@ -100,15 +109,6 @@ class Game:
         self.overlay_bg.set_colorkey(WHITE)
         self.menu_bg = pygame.image.load('img/menu_bg.jpg')
         
-        
-        
-        
-        pygame.display.set_caption('ALPHA-HOTEL-1 -Demo')
-        image_to_load = pygame.image.load('img/icon.png')
-        self.icon = pygame.Surface([32, 32])
-        self.icon.blit(image_to_load, (0,0))
-        pygame.display.set_icon(self.icon)
-        
 
         self.intro_bg = pygame.image.load('img/game_over_bg.jpg')
         self.game_over_bg = pygame.image.load('img/game_over_bg.jpg')
@@ -123,6 +123,7 @@ class Game:
         self.text_timer = pygame.time.get_ticks()
         self.radar_animation_loop = 0
         self.score = 0
+        self.level = 0
 
         self.tanks_killed_lv5 = 0
         self.sams_killed_lv5 = 0
@@ -147,37 +148,39 @@ class Game:
     #   file managment
     def save_game(self):
         filename = filedialog.asksaveasfilename(title="Save game as", defaultextension=".pkl", filetypes=[("Game Files", "*.pkl"), ("All files", "*.*")])
-        with open(filename, 'wb') as file:
-            pickle.dump(self.game_state, file)
+        if filename:
+            with open(filename, 'wb') as file:
+                pickle.dump(self.game_state, file)
 
     def load_game(self):
         filename = filedialog.askopenfilename(title="Select a file", filetypes=[("Game Files", "*.pkl"), ("All files", "*.*")])
-        with open(filename, 'rb') as file:
-            
-            try:
-                loaded = pickle.load(file)
-                self.level = loaded['level'] + 1
-                self.score = loaded['score']
+        if filename:
+            with open(filename, 'rb') as file:
+                
+                try:
+                    loaded = pickle.load(file)
+                    self.level = loaded['level'] + 1
+                    self.score = loaded['score']
 
-                if self.level == 1:
-                    self.main_theme.stop()
+                    if self.level == 1:
+                        self.main_theme.stop()
+                        self.scene_one()
+                    elif self.level == 2:
+                        self.main_theme.stop()
+                        self.scene_two()
+                    elif self.level == 3:
+                        self.main_theme.stop()
+                        self.scene_three()
+                    elif self.level == 4:
+                        self.main_theme.stop()
+                        self.scene_four()
+                    elif self.level == 5:
+                        self.main_theme.stop()
+                        self.scene_five()
+
+                except:
+                    self.level = 1
                     self.scene_one()
-                elif self.level == 2:
-                    self.main_theme.stop()
-                    self.scene_two()
-                elif self.level == 3:
-                    self.main_theme.stop()
-                    self.scene_three()
-                elif self.level == 4:
-                    self.main_theme.stop()
-                    self.scene_four()
-                elif self.level == 5:
-                    self.main_theme.stop()
-                    self.scene_five()
-
-            except:
-                self.level = 1
-                self.scene_one()
 
     
     #   tilemapping
@@ -1366,7 +1369,7 @@ class Game:
         if self.player.health <= 0:
             self.main_theme.stop()
             self.helicopter_sound.stop()
-            self.playing = False
+            self.game_over()
 
         #   get click and pos events and button logic here
         mouse_pos = pygame.mouse.get_pos()
@@ -1549,38 +1552,53 @@ class Game:
 
     #   still screens
     def game_over(self):
+        game_over = True
         text = self.font.render('You have been shot down.', True, WHITE)
         text_rect = text.get_rect(center=(WIN_WIDTH/2, 350))
 
         restart_button = Button(10, WIN_HEIGHT-60, 120, 50, WHITE, BLACK, 'Restart', 32)
 
-        for sprite in self.all_sprites:
-            sprite.kill()
+        try:
+            for sprite in self.all_sprites:
+                sprite.kill()
+        except:
+            pass
 
-        while self.running:
+        while game_over:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    game_over = False
                     self.running = False
+                    pygame.quit()
+                    sys.exit()
 
             mouse_pos = pygame.mouse.get_pos()
             mouse_pressed = pygame.mouse.get_pressed()
 
             if restart_button.is_pressed(mouse_pos, mouse_pressed):
                 if self.level == 1:
+                    game_over = False
                     self.new_lv1()
                     self.main()
                 elif self.level == 2:
+                    game_over = False
                     self.new_lv2()
                     self.main()
                 elif self.level == 3:
+                    game_over = False
                     self.new_lv3()
                     self.main()
                 elif self.level == 4:
+                    game_over = False
                     self.new_lv4()
                     self.main()
                 elif self.level == 5:
+                    game_over = False
                     self.cut_scene_one()
                     self.main()
+                else:
+                    game_over = False
+                    self.intro_screen()
 
             self.screen.blit(self.game_over_bg, (0, 0))
             self.screen.blit(text, text_rect)
@@ -1737,6 +1755,7 @@ class Game:
                 now = pygame.time.get_ticks()
                 if now - last >= 500:
                     intro = False
+                    self.level = 1
                     self.scene_one()
                     
             if load_button.is_pressed(mouse_pos, mouse_pressed):
@@ -2461,7 +2480,7 @@ g.intro_screen()
 
 while g.running:
     g.main()
-    g.game_over()
+    g.intro_screen()
 
 pygame.quit()
 sys.exit()

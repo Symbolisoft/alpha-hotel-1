@@ -1,6 +1,8 @@
 import pickle
 import pygame
 import sys
+import tkinter
+from tkinter import filedialog
 
 import pygame.surface
 from sprites import *
@@ -15,9 +17,12 @@ class Game:
 
         pygame.mixer.init()
         pygame.joystick.init()
+        self.root = tkinter.Tk()
+        self.root.withdraw()
         self.clock = pygame.time.Clock()
         self.running = True
         self.playing = False
+
 
         if pygame.joystick.get_count() > 0:
             self.joystick = pygame.joystick.Joystick(0)
@@ -140,12 +145,15 @@ class Game:
         self.lv5_air_kills = 0
 
     #   file managment
-    def save_game(self, filename='savegame.pkl'):
+    def save_game(self):
+        filename = filedialog.asksaveasfilename(title="Save game as", defaultextension=".pkl", filetypes=[("Game Files", "*.pkl"), ("All files", "*.*")])
         with open(filename, 'wb') as file:
             pickle.dump(self.game_state, file)
 
-    def load_game(self, filename='savegame.pkl'):
+    def load_game(self):
+        filename = filedialog.askopenfilename(title="Select a file", filetypes=[("Game Files", "*.pkl"), ("All files", "*.*")])
         with open(filename, 'rb') as file:
+            
             try:
                 loaded = pickle.load(file)
                 self.level = loaded['level'] + 1
